@@ -37,3 +37,12 @@ pick_line() {
     fi
 }
 
+while true; do
+    line=$(pick_line)
+    # prepend service identity 
+    # Pass log entry as payload
+    printf '%s %s\n' "$SERVICE_NAME" "$line" \
+        | nc -u -w0 -q0 "$TARGET_HOST" "$TARGET_PORT"
+    sleep "$interval"
+done
+

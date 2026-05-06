@@ -1,0 +1,56 @@
+services:
+  auth-daemon:
+    build: .
+    environment:
+      SERVICE_NAME: auth-daemon
+      TARGET_HOST: host.docker.internal
+      TARGET_PORT: 9999
+      LOG_FILE: /data/openSSH2k.log
+      EVENTS_PER_SEC: 2
+      ERROR_RATE: 0.05
+    volumes:
+      - ../data:/data:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  web-frontend:
+    build: .
+    environment:
+      SERVICE_NAME: web-frontend
+      TARGET_HOST: host.docker.internal
+      TARGET_PORT: 9999
+      LOG_FILE: /data/Linux2k.log
+      EVENTS_PER_SEC: 5
+      ERROR_RATE: 0.02
+    volumes:
+      - ../data:/data:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  cache-worker:
+    build: .
+    environment:
+      SERVICE_NAME: cache-worker
+      TARGET_HOST: host.docker.internal
+      TARGET_PORT: 9999
+      LOG_FILE: /data/Linux2k.log
+      EVENTS_PER_SEC: 10
+      ERROR_RATE: 0.01
+    volumes:
+      - ../data:/data:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  noisy-daemon:
+    build: .
+    environment:
+      SERVICE_NAME: noisy-daemon
+      TARGET_HOST: host.docker.internal
+      TARGET_PORT: 9999
+      LOG_FILE: /data/Linux2k.log
+      EVENTS_PER_SEC: 3
+      ERROR_RATE: 0.8
+    volumes:
+      - ../data:/data:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
