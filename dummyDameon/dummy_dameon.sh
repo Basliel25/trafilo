@@ -10,11 +10,16 @@ ERROR_RATE="${ERROR_RATE:-0.1}"
 
 [[ -r "$LOG_FILE" ]] || { echo "cannot read $LOG_FILE" >&2; exit 1; }
 
-# pre-split the corpus into error and non-error pools
+# temp files for error/healthy pools
+ERROR_POOL=$(mktemp)
+NORMAL_POOL=$(mktemp)
+trap 'rm -f "$ERROR_POOL" "$NORMAL_POOL"' EXIT
+
+# pre-split the corpus
 case "$LOG_FILE" in
     *Linux2k.log)   ERROR_RE='error|fail|fatal|denied|cannot|unable to|out of memory|segfault' ;;
     *OpenSSH2k.log) ERROR_RE='Failed|Invalid|failure|error|fatal|refused|denied|BREAK-IN|Bad protocol|not allowed' ;;
-    *)            ERROR_RE='error|fail|fatal' ;;
+    *)              ERROR_RE='error|fail|fatal' ;;
 esac
 
 grep -iE "$ERROR_RE" "$LOG_FILE" > "$ERROR_POOL" || true
@@ -42,7 +47,7 @@ while true; do
     # prepend service identity 
     # Pass log entry as payload
     printf '%s %s\n' "$SERVICE_NAME" "$line" \
-        | nc -u -w0 -q0 "$TARGET_HOST" "$TARGET_PORT"
+        | nc -u -w1 "$TARGET_HOST" "$TARGET_PORT"
     sleep "$interval"
 done
 
