@@ -1,0 +1,9 @@
+*
+
+!.gitignore
+!README.md
+!src/*
+!include/*
+!tests/*
+!Makefile
+
