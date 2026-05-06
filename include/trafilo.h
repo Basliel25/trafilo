@@ -130,5 +130,10 @@ void trafilo_shutdown(trafilo_t *t);
  */
 void trafilo_destroy(trafilo_t *t);
 
+/**
+ * @brief Push a raw line into the framework's queue, bypassing the socket.
+ * @return 0 on success, -1 if queue full or framework shutting down.
+ */
+int trafilo_emit(trafilo_t *t, const char *raw, size_t len);
 
 #endif
