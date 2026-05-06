@@ -15,6 +15,15 @@ typedef struct {
     struct timespec t_secs; /* timestamp of event in nano second precision*/
 } event_t;
 
+/**
+ * @brief: A result to be piped to sinking module when a window emits.
+ */
+typedef struct {
+    const char      *key;          /* bucket key */
+    size_t           event_count;  /* events currently in the window */
+    struct timespec  window_start; /* timestamp of oldest retained event */
+    struct timespec  window_end;   /* timestamp of newest retained event */
+} window_result_t;
 
 /*************************
  * User callback functions
@@ -90,5 +99,36 @@ typedef struct {
     trafilo_state_init_fn  state_init;
     trafilo_state_free_fn  state_free;
 } trafilo_config_t;
+
+
+/****************
+ * API Lifecycle
+ ****************
+ */
+/* opaque framework handle */
+typedef struct trafilo trafilo_t;
+
+/**
+ * @brief Create a framework instance.
+ * @return new trafilo_t* on success, NULL on invalid config or alloc failure.
+ */
+trafilo_t *trafilo_create(const trafilo_config_t *cfg);
+
+/**
+ * @brief Run the framework. Blocks until trafilo_shutdown() is called.
+ * @return 0 on clean shutdown, non-zero on error
+ */
+int trafilo_run(trafilo_t *t);
+
+/**
+ * @brief Signal the framework to shut down.
+ */
+void trafilo_shutdown(trafilo_t *t);
+
+/**
+ * @brief Free all resources. 
+ */
+void trafilo_destroy(trafilo_t *t);
+
 
 #endif
