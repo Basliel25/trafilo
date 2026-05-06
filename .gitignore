@@ -1,9 +1,1 @@
-*
-
-!.gitignore
-!README.md
-!src/*
-!include/*
-!tests/*
-!Makefile
-
+dummyDameon/test_dameon.sh

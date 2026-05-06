@@ -7,9 +7,9 @@ services:
       TARGET_PORT: 9999
       LOG_FILE: /data/openSSH2k.log
       EVENTS_PER_SEC: 2
-      ERROR_RATE: 0.05
+      ERROR_RATE: 0.09
     volumes:
-      - ../data:/data:ro
+      - ./data:/data:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -21,9 +21,9 @@ services:
       TARGET_PORT: 9999
       LOG_FILE: /data/Linux2k.log
       EVENTS_PER_SEC: 5
-      ERROR_RATE: 0.02
+      ERROR_RATE: 0.05
     volumes:
-      - ../data:/data:ro
+      - ./data:/data:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -35,9 +35,9 @@ services:
       TARGET_PORT: 9999
       LOG_FILE: /data/Linux2k.log
       EVENTS_PER_SEC: 10
-      ERROR_RATE: 0.01
+      ERROR_RATE: 0.04
     volumes:
-      - ../data:/data:ro
+      - ./data:/data:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -49,8 +49,8 @@ services:
       TARGET_PORT: 9999
       LOG_FILE: /data/Linux2k.log
       EVENTS_PER_SEC: 3
-      ERROR_RATE: 0.8
+      ERROR_RATE: 0.2
     volumes:
-      - ../data:/data:ro
+      - ./data:/data:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"

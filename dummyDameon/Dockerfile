@@ -9,7 +9,7 @@ RUN apt-get update && \
         grep \
     && rm -rf /var/lib/apt/lists/*
 
-COPY daemon.sh /daemon.sh
-RUN chmod +x /daemon.sh
+COPY dummy_dameon.sh /dummy_dameon.sh
+RUN chmod +x /dummy_dameon.sh
 
-ENTRYPOINT ["/daemon.sh"]
+ENTRYPOINT ["/dummy_dameon.sh"]
