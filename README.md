@@ -3,6 +3,7 @@ A simple streaming event-handler framework written in C. Gets fed events through
 
 ## General design
 
+```
 network socket
        │
        │  bytes
@@ -31,3 +32,4 @@ network socket
 │ sink.c       │   user-registeered callback
 │              │   
 └──────────────┘
+```
