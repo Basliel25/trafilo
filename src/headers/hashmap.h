@@ -3,8 +3,9 @@
 
 #include <pthread.h>
 #include <time.h>
-#include "window.h"
 #include <stdlib.h>
+#include <string.h>
+#include "window.h"
 #include "../../include/trafilo.h"
 
 /**
@@ -15,8 +16,6 @@ typedef struct bucket_node {
     void *state; /* User defined state */
     sliding_window_t window; /* An embedded sliding window */
 
-    pthread_mutex_t bucket_lock; /* Mutex lock for bucket */
-
     struct bucket_node *next;
     struct timespec last_event_ts;
 } bucket_node;
@@ -26,6 +25,7 @@ typedef struct bucket_node {
  */
 typedef struct hashmap_t {
     bucket_node **buckets; /* Array of chain buckets */
+    pthread_mutex_t *locks; /* Array of per bucket locks*/
     size_t num_buckets; /* Number of buckets in hasmap */
 } hashmap_t;
 
