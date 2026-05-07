@@ -82,7 +82,7 @@ static void *consumer(void *arg) {
     int received = 0;
     while (bq_pop(a->q) != NULL)
         received++;
-    *(int *)arg = received;   
+    a->count = received;   
     return NULL;
 }
 
@@ -127,13 +127,13 @@ void test_bounded_capacity_respected(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    //RUN_TEST(test_push_pop_single_item);
-    //RUN_TEST(test_fifo_ordering);
-    //RUN_TEST(test_capacity_zero_returns_null);
-    //RUN_TEST(test_pop_after_shutdown_returns_null);
-    //RUN_TEST(test_push_after_shutdown_returns_error);
-    //RUN_TEST(test_threaded_producer_consumer);
-    //RUN_TEST(test_bounded_capacity_respected);
+    RUN_TEST(test_push_pop_single_item);
+    RUN_TEST(test_fifo_ordering);
+    RUN_TEST(test_capacity_zero_returns_null);
+    RUN_TEST(test_pop_after_shutdown_returns_null);
+    RUN_TEST(test_push_after_shutdown_returns_error);
+    RUN_TEST(test_threaded_producer_consumer);
+    RUN_TEST(test_bounded_capacity_respected);
 
     return UNITY_END();
 }
