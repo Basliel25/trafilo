@@ -210,19 +210,19 @@ void test_threaded_find_or_create_no_lost_updates(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    //RUN_TEST(test_create_destroy_empty);
-    //RUN_TEST(test_create_zero_buckets_returns_null);
+    RUN_TEST(test_create_destroy_empty);
+    RUN_TEST(test_create_zero_buckets_returns_null);
 
-    //RUN_TEST(test_find_or_create_inserts_new_key);
-    //RUN_TEST(test_find_or_create_returns_same_bucket_for_same_key);
-    //RUN_TEST(test_find_or_create_distinct_keys_distinct_buckets);
+    RUN_TEST(test_find_or_create_inserts_new_key);
+    RUN_TEST(test_find_or_create_returns_same_bucket_for_same_key);
+    RUN_TEST(test_find_or_create_distinct_keys_distinct_buckets);
 
-    //RUN_TEST(test_chain_walk_with_forced_collisions);
+    RUN_TEST(test_chain_walk_with_forced_collisions);
 
-    //RUN_TEST(test_state_free_called_for_each_bucket);
-    //RUN_TEST(test_for_each_visits_every_bucket);
+    RUN_TEST(test_state_free_called_for_each_bucket);
+    RUN_TEST(test_for_each_visits_every_bucket);
 
-    //RUN_TEST(test_threaded_find_or_create_no_lost_updates);
+    RUN_TEST(test_threaded_find_or_create_no_lost_updates);
 
     return UNITY_END();
 }
