@@ -33,7 +33,7 @@ typedef struct hashmap_t {
  * @brief Create a hashmap
  * @param size_t num_buckets: Number of buckets
  */
-hashmap_t *hasmap_create(size_t num_buckets);
+hashmap_t *hashmap_create(size_t num_buckets);
 
 /**
  * @brief Find bucket for key; create if absent. Returns with bucket->bucket_lock LOCKED.
@@ -48,7 +48,7 @@ bucket_node *hashmap_find_or_create(hashmap_t *hashmap, const char *key);
  * @param hasmap_t * pointer to the hashmap
  * @param trafilo_state_free_fn user specified state_free function
  */
-void hasmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free);
+void hashmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free);
 
 /**
  * @brief For each iteration for operations

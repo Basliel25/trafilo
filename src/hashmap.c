@@ -1,7 +1,7 @@
 #include "headers/hashmap.h" 
 
 
-hashmap_t *hasmap_create(size_t num_buckets) {
+hashmap_t *hashmap_create(size_t num_buckets) {
     hashmap_t *hashmap;
     if(num_buckets == 0) return NULL;
 
@@ -99,7 +99,7 @@ bucket_node *hashmap_find_or_create(hashmap_t *hashmap, const char *key) {
     return new_node;
 }
 
-void hasmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free) {
+void hashmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free) {
     if(hashmap == NULL) return;
 
     // Free chains
