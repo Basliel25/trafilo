@@ -2,6 +2,14 @@
 #define SOCKET_H
 
 #include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/time.h>
+
 #include "bounded_queue.h"
 
 /**
@@ -9,7 +17,7 @@
  */
 typedef struct listener_t {
     int sockfd; /* UDP Port */
-    bounded_queue_t *q; /* Work queue associated with queue */
+    bounded_queue_t *bounded_q; /* Work queue associated with queue */
     size_t max_line; /* The max lines work queue can handel*/
     pthread_t thread; /* Listening and populating thread */
     int started; /* Operation flag */
