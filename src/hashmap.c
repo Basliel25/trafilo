@@ -94,7 +94,33 @@ bucket_node *hashmap_find_or_create(hashmap_t *hashmap, const char *key) {
 }
 
 void hasmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free) {
+    if(hashmap == NULL) return;
+
+    // Free chains
+    for(size_t i = 0; i < hashmap->num_buckets; i++) {
+        bucket_node *current = hashmap->buckets[i];
+        while(current != NULL) {
+            bucket_node *next = current->next;
+            free(current->key);
+
+            // User provided state
+            if (state_free && current->state)
+                free(current->state);
+
+            free(current);
+            current = next;
+        }
+    }
     
+    // Free all MutexS
+    for(size_t i = 0; i < hashmap->num_buckets; i++) {
+        pthread_mutex_destroy(&hashmap->locks[i]);
+    }
+
+    // Free all arrays
+    free(hashmap->buckets);
+    free(hashmap->locks);
+    free(hashmap);
 }
 
 void hashmap_for_each(hashmap_t *hashmap, 
