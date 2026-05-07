@@ -14,7 +14,7 @@
 typedef struct bucket_node {
     char *key; /* Bucket owned key*/
     void *state; /* User defined state */
-    sliding_window_t window; /* An embedded sliding window */
+    sliding_window_t *window; /* An embedded sliding window */
 
     struct bucket_node *next;
     struct timespec last_event_ts;
@@ -60,5 +60,12 @@ void hasmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free);
 void hashmap_for_each(hashmap_t *hashmap, 
         void (*fn)(bucket_node *bucket, void *arg), 
         void *arg);
+
+/**
+ * @brief Helper to unlock locked node
+ * @param hasmap_t pointer to the hashmap
+ * @param key the key that belongs to the node
+ */
+void hashmap_unlock_bucket(hashmap_t *hashmap, const char *key);
 
 #endif

@@ -10,7 +10,7 @@ hashmap_t *hasmap_create(size_t num_buckets) {
         return NULL;
     }
 
-    hashmap->buckets = calloc(num_buckets, sizeof(bucket_node *) * num_buckets);
+    hashmap->buckets = calloc(num_buckets, sizeof(bucket_node *));
 
     if (hashmap->buckets == NULL) {
         free(hashmap);    
@@ -60,7 +60,11 @@ static bucket_node *bucket_create(const char *key) {
    if(new_node == NULL) return new_node;
 
    new_node->key = strdup(key);
-   if(new_node->key == NULL) return NULL;
+   if(new_node->key == NULL) {
+       free(new_node);
+       return NULL;
+   }
+
    new_node->state = NULL;
    new_node->window = NULL;
    clock_gettime(CLOCK_MONOTONIC, &new_node->last_event_ts);
@@ -71,6 +75,8 @@ static bucket_node *bucket_create(const char *key) {
 bucket_node *hashmap_find_or_create(hashmap_t *hashmap, const char *key) {
     size_t bucket_idx = bucket_index(hashmap, key);
 
+    // Acquire lock
+    pthread_mutex_lock(&hashmap->locks[bucket_idx]);
     // Find and return if found
     bucket_node *current = hashmap->buckets[bucket_idx];
     while(current != NULL) {
@@ -105,7 +111,7 @@ void hasmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free) {
 
             // User provided state
             if (state_free && current->state)
-                free(current->state);
+                state_free(current->state);
 
             free(current);
             current = next;
@@ -137,4 +143,9 @@ void hashmap_for_each(hashmap_t *hashmap,
         }
         pthread_mutex_unlock(&hashmap->locks[i]);
     }
+}
+
+void hashmap_unlock_bucket(hashmap_t *hashmap, const char *key) {
+    size_t idx = bucket_index(hashmap, key);
+    pthread_mutex_unlock(&hashmap->locks[idx]);
 }
