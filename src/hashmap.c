@@ -18,6 +18,7 @@ hashmap_t *hasmap_create(size_t num_buckets) {
     }
 
     hashmap->num_buckets = num_buckets;
+
     return hashmap;
 }
 
@@ -42,8 +43,32 @@ static uint64_t fnv1a(const char *key) {
 static size_t bucket_index(const hashmap_t *m, const char *key) {
     return fnv1a(key) % m->num_buckets;
 }
+static bucket_node *bucket_create(const char *key) {return NULL;}
 
-bucket_node *hashmap_find_or_create(hashmap_t *hashmap, const char *key);
+bucket_node *hashmap_find_or_create(hashmap_t *hashmap, const char *key) {
+    size_t bucket_idx = bucket_index(hashmap, key);
+
+    // Find and return if found
+    bucket_node *current = hashmap->buckets[bucket_idx];
+    while(current != NULL) {
+        if(strcmp(key, current->key) == 0) {
+            return current; //User needs to unlock current
+        }
+        current = current->next;
+    }
+
+    // If not found create
+    bucket_node *new_node = bucket_create(key);
+    if (new_node == NULL) {
+        pthread_mutex_unlock(&hashmap->locks[bucket_idx]);
+        return NULL;
+    }
+
+    new_node->next = hashmap->buckets[bucket_idx];
+    hashmap->buckets[bucket_idx] = new_node;
+
+    return new_node;
+}
 
 void hasmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free);
 
