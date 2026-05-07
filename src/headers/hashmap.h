@@ -1,20 +1,10 @@
-/**
- * Hashmap to store events
- * array of N buckets
- * each bucket:
- *  - key
- *  - user_states
- *  - sliding_window for sampling
- *  - mutex protected
- * chaining for collisions
- * FNV1-a hasing used for key (service) names
- */
 #ifndef HASMAP_H
 #define HASMAP_H
 
 #include <pthread.h>
 #include <time.h>
 #include "window.h"
+#include <stdlib.h>
 #include "../../include/trafilo.h"
 
 /**
@@ -27,7 +17,7 @@ typedef struct bucket_node {
 
     pthread_mutex_t bucket_lock; /* Mutex lock for bucket */
 
-    struct bucket_node_t *next;
+    struct bucket_node *next;
     struct timespec last_event_ts;
 } bucket_node;
 
@@ -44,6 +34,14 @@ typedef struct hashmap_t {
  * @param size_t num_buckets: Number of buckets
  */
 hashmap_t *hasmap_create(size_t num_buckets);
+
+/**
+ * @brief Find bucket for key; create if absent. Returns with bucket->bucket_lock LOCKED.
+ * @param hashmap target
+ * @param key NUL-terminated string, bucket takes ownership 
+ * @return locked bucket, or NULL on alloc failure
+ */
+bucket_node *hashmap_find_or_create(hashmap_t *hashmap, const char *key);
 
 /**
  * @brief Graceful Cleanup
