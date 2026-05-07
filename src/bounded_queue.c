@@ -62,7 +62,26 @@ int bq_push(bounded_queue_t *q, void *item) {
     return 0;
 }
 
-void *bq_pop(bounded_queue_t *q);                
+void *bq_pop(bounded_queue_t *q){
+
+    pthread_mutex_lock(&q->mu_lock);
+    while(q->count == 0 && !q->done) {
+        pthread_cond_wait(&q->not_empty, &q->mu_lock);
+    }
+    if(q->count == 0) {
+        pthread_mutex_unlock(&q->mu_lock);
+        return NULL;
+    }
+
+    void *item = q->buf[q->head];
+    q->head = (q->head + 1) % q->capacity;
+    q->count -= 1;
+
+    pthread_cond_signal(&q->not_full);
+
+    pthread_mutex_unlock(&q->mu_lock);
+    return item;
+}
 
 void bq_shutdown(bounded_queue_t *q) {
     // Acqure lock and set flag
