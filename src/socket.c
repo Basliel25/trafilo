@@ -1,5 +1,6 @@
 #include "headers/socket.h"
 
+static void *listener_loop(void *arg);
 
 listener_t *listener_create(int port, bounded_queue_t *bounded_q, size_t max_line) {
     // Create a listener based on specifications
@@ -38,12 +39,31 @@ listener_t *listener_create(int port, bounded_queue_t *bounded_q, size_t max_lin
     listener->bounded_q = bounded_q;
     listener->max_line = max_line;
 
-    listener->started = 1;
     listener->done = 0;
 
     return listener;
 }
 
-int listener_start(listener_t *listener);
-void listener_stop(listener_t *l);
+int listener_start(listener_t *listener) {
+    // Return 
+    if(listener == NULL) return -1;
+    if(listener->started == 1) return -2;
+
+    // Thread creation 
+    if(pthread_create(&listener->thread, NULL, listener_loop, listener) != 1) 
+        return -1;
+
+    listener->started = 1;
+    return 0;
+}
+
+
+void listener_stop(listener_t *listener) {
+    if(listener == NULL) return;
+    if(listener->started != 1) return;
+
+    listener->done = 1;
+    pthread_join(listener->thread, NULL);
+    listener->started = 0;
+}
 void listener_destroy(listener_t *listener);
