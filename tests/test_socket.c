@@ -36,6 +36,42 @@ static int send_udp(const char *msg, int port) {
     return (n < 0) ? -1 : 0;
 }
 
+// Lifecycle and sanity test: Limited queue size to 16
+void test_listener_create_destroy(void) {
+    bounded_queue_t *q = bq_create(16);
+    listener_t *l = listener_create(SELF_TEST_PORT, q, 1024);
+
+    TEST_ASSERT_NOT_NULL(l);
+
+    listener_destroy(l);
+    bq_destroy(q);
+}
+
+// End to end packet sanity
+void test_single_packet_received(void) {
+    bounded_queue_t *q = bq_create(16);
+    listener_t *l = listener_create(SELF_TEST_PORT, q, 1024);
+    TEST_ASSERT_NOT_NULL(l);
+
+    TEST_ASSERT_EQUAL_INT(0, listener_start(l));
+
+    /* wait listener thread to enter recvfrom */
+    usleep(50000);   /* 50ms */
+
+    TEST_ASSERT_EQUAL_INT(0, send_udp("hello trafilo", SELF_TEST_PORT));
+
+    /* pop the line when the queue is full*/
+    char *line = bq_pop(q);
+    TEST_ASSERT_NOT_NULL(line);
+    TEST_ASSERT_EQUAL_STRING("hello trafilo", line);
+    free(line);
+
+    listener_stop(l);
+    listener_destroy(l);
+    bq_shutdown(q);
+    bq_destroy(q);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
