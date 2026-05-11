@@ -10,7 +10,7 @@ static void *listener_loop(void *arg) {
     if(buf == NULL) return NULL; 
 
     //  Loop until shutdown or until timeout
-    while(1) {
+    while(!listener->done) {
         ssize_t num_bytes  = recvfrom(listener->sockfd, buf, listener->max_line -1, 0, NULL, NULL);
 
         // How should i handle udp truncation,
@@ -21,9 +21,12 @@ static void *listener_loop(void *arg) {
             if (errno == EAGAIN) {
                 // timeout
                 continue;
+            } else if(errno == EINTR) {
+                // Signal interruption
+                continue;
             }
             // A different type of error?
-            continue;
+            break;
         }
 
         if(num_bytes == 0) continue; // Skip empty datagrams
@@ -39,6 +42,9 @@ static void *listener_loop(void *arg) {
             break;
         }
     }
+
+    free(buf);
+    return NULL;
 }
 
 listener_t *listener_create(int port, bounded_queue_t *bounded_q, size_t max_line) {
@@ -79,6 +85,7 @@ listener_t *listener_create(int port, bounded_queue_t *bounded_q, size_t max_lin
     listener->max_line = max_line;
 
     listener->done = 0;
+    listener->started = 0;
 
     return listener;
 }
@@ -89,7 +96,7 @@ int listener_start(listener_t *listener) {
     if(listener->started == 1) return -2;
 
     // Thread creation 
-    if(pthread_create(&listener->thread, NULL, listener_loop, listener) != 1) 
+    if(pthread_create(&listener->thread, NULL, listener_loop, listener) != 0) 
         return -1;
 
     listener->started = 1;
