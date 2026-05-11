@@ -1,6 +1,45 @@
 #include "headers/socket.h"
 
-static void *listener_loop(void *arg);
+/**
+ * @brief Looping function for socket thread.
+ * @param void *arg: The listener_t of the connection
+ */
+static void *listener_loop(void *arg) {
+    listener_t *listener = (listener_t *) arg;
+    char *buf = malloc(listener->max_line);
+    if(buf == NULL) return NULL; 
+
+    //  Loop until shutdown or until timeout
+    while(1) {
+        ssize_t num_bytes  = recvfrom(listener->sockfd, buf, listener->max_line -1, 0, NULL, NULL);
+
+        // How should i handle udp truncation,
+        // when num_bytes > max_line
+        
+        // Check empty or error bytes
+        if(num_bytes < 0){ 
+            if (errno == EAGAIN) {
+                // timeout
+                continue;
+            }
+            // A different type of error?
+            continue;
+        }
+
+        if(num_bytes == 0) continue; // Skip empty datagrams
+
+        buf[num_bytes] = '\0'; // NULL Terminate lines
+
+        char *line = strdup(buf);
+        if (line == NULL) continue; // OOM? Drop the line
+
+        // On queue complete, free memory and break loop
+        if(bq_push(listener->bounded_q, line) < 0) {
+            free(line);
+            break;
+        }
+    }
+}
 
 listener_t *listener_create(int port, bounded_queue_t *bounded_q, size_t max_line) {
     // Create a listener based on specifications
@@ -75,5 +114,4 @@ void listener_destroy(listener_t *listener){
 
     //Free listener heap
     free(listener);
-    
 }
