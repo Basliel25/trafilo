@@ -7,10 +7,8 @@ bounded_queue_t *bq_create(size_t capacity) {
     if(capacity == 0) return NULL;
 
     bounded_q = malloc(sizeof(bounded_queue_t));
-    if(bounded_q == NULL) {
-        free(bounded_q);
-        return NULL;
-    }
+    if(bounded_q == NULL) return NULL;
+    
 
     bounded_q->buf = malloc(sizeof(void *) * capacity);
     if(bounded_q->buf == NULL) {
@@ -31,13 +29,14 @@ bounded_queue_t *bq_create(size_t capacity) {
     return bounded_q;
 }
 
-void bq_destroy(bounded_queue_t *q) {
-    pthread_mutex_destroy(&q->mu_lock);
-    pthread_cond_destroy(&q->not_empty);
-    pthread_cond_destroy(&q->not_full);
+void bq_destroy(bounded_queue_t *bounded_q) {
+    if(bounded_q == NULL) return;
+    pthread_mutex_destroy(&bounded_q->mu_lock);
+    pthread_cond_destroy(&bounded_q->not_empty);
+    pthread_cond_destroy(&bounded_q->not_full);
     
-    free(q->buf);
-    free(q);
+    free(bounded_q->buf);
+    free(bounded_q);
 }
 
 int bq_push(bounded_queue_t *q, void *item) {
@@ -85,20 +84,22 @@ void *bq_pop(bounded_queue_t *q){
     return item;
 }
 
-void bq_shutdown(bounded_queue_t *q) {
+void bq_shutdown(bounded_queue_t *bounded_q) {
+    if(bounded_q == NULL) return;
+
     // Acqure lock and set flag
-    pthread_mutex_lock(&q->mu_lock);
-    if(q->done) {
-        pthread_mutex_unlock(&q->mu_lock);
+    pthread_mutex_lock(&bounded_q->mu_lock);
+    if(bounded_q->done) {
+        pthread_mutex_unlock(&bounded_q->mu_lock);
     }
-    q->done = 1;
+    bounded_q->done = 1;
 
     // Wake up all listening workers
-    pthread_cond_broadcast(&q->not_empty);
+    pthread_cond_broadcast(&bounded_q->not_full);
     
     // Wake up all listening producers
-    pthread_cond_broadcast(&q->not_empty);
+    pthread_cond_broadcast(&bounded_q->not_empty);
 
-    pthread_mutex_unlock(&q->mu_lock);
+    pthread_mutex_unlock(&bounded_q->mu_lock);
 }            
 
