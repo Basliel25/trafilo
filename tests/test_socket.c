@@ -134,6 +134,81 @@ void test_shutdown_unblocks_listener(void) {
     bq_destroy(q);
 }
 
+// Test with the dummy dameon on port: 9999
+void test_live_daemon_monitor(void) {
+    bounded_queue_t *q = bq_create(1024);
+    listener_t *l = listener_create(DAEMON_PORT, q, 2048);
+
+    if (l == NULL) {
+        TEST_IGNORE_MESSAGE("Port 9999 unavailable or busy");
+        bq_destroy(q);
+        return;
+    }
+
+    listener_start(l);
+    printf("\n  [live] listening on UDP %d...\n", DAEMON_PORT);
+
+    // Monitoring loop: with a simple timeout to pop elements
+    struct timespec deadline;
+    clock_gettime(CLOCK_MONOTONIC, &deadline);
+    deadline.tv_sec += 5;
+
+    long lines_received = 0;
+    long bytes_received = 0;
+    long first_arrival_ms = -1;
+    struct timespec t0;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+
+    // Drain the queue 
+    while (1) {
+        struct timespec now;
+        clock_gettime(CLOCK_MONOTONIC, &now);
+        if (now.tv_sec > deadline.tv_sec ||
+            (now.tv_sec == deadline.tv_sec && now.tv_nsec >= deadline.tv_nsec)) {
+            break;
+        }
+
+        // signal listener+queue to wake any blocked pop after 5s
+        usleep(100000);   /* 100ms tick */
+    }
+
+    // shut down listener so bq_pop won't block forever 
+    listener_stop(l);
+    bq_shutdown(q);
+
+    // drain everything recieved
+    char *line;
+    while ((line = bq_pop(q)) != NULL) {
+        if (first_arrival_ms < 0) {
+            struct timespec t;
+            clock_gettime(CLOCK_MONOTONIC, &t);
+            first_arrival_ms = (t.tv_sec - t0.tv_sec) * 1000
+                             + (t.tv_nsec - t0.tv_nsec) / 1000000;
+        }
+        lines_received++;
+        bytes_received += strlen(line);
+        if (lines_received <= 3) {
+            printf("  [live] sample: %.80s%s\n", line,
+                   strlen(line) > 80 ? "..." : "");
+        }
+        free(line);
+    }
+
+    printf("  [live]  ==stats== \n");
+    printf("  [live] Lines received: %ld\n", lines_received);
+    printf("  [live] NUM_bytes received: %ld\n", bytes_received);
+    if (lines_received > 0) {
+        printf("  [live] average line size: %ld bytes\n", bytes_received / lines_received);
+        printf("  [live] recive rate:          %.1f lines/sec\n", lines_received / 5.0);
+    } else {
+        printf("  [live] (no packets recived \n");
+        TEST_IGNORE_MESSAGE("No packets received on 9999.\n");
+    }
+
+    listener_destroy(l);
+    bq_destroy(q);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
