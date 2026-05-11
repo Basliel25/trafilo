@@ -66,4 +66,14 @@ void listener_stop(listener_t *listener) {
     pthread_join(listener->thread, NULL);
     listener->started = 0;
 }
-void listener_destroy(listener_t *listener);
+void listener_destroy(listener_t *listener){
+    if(listener == NULL) return;
+    if(listener->started) listener_stop(listener);
+
+    // Shutdown socket
+    close(listener->sockfd);
+
+    //Free listener heap
+    free(listener);
+    
+}
