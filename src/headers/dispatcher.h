@@ -21,7 +21,7 @@ typedef struct dispatcher_t {
 
     // Lifecycle
     volatile int done; /* Shutdown signaling*/
-int started; 
+    int started; 
 } dispatcher_t;
 
 /**
@@ -33,7 +33,7 @@ int started;
  *        and the desired number of workers.
  * @return dispatcher_t dispatcher, NULL on creation failure
  */
-dispatcher_t dispatcher_create(bounded_queue_t *bounded_q, 
+dispatcher_t *dispatcher_create(bounded_queue_t *bounded_q, 
         hashmap_t *hashmap, 
         const trafilo_config_t *trafilo_config);
 /*

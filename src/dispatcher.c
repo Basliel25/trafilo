@@ -1,1 +1,53 @@
+#include "../include/trafilo.h"
 #include "headers/dispatcher.h"
+
+static void *dispatcher_loop(void *arg){return NULL;}
+
+dispatcher_t *dispatcher_create(bounded_queue_t *bounded_q, 
+        hashmap_t *hashmap, 
+        const trafilo_config_t *trafilo_config) {
+    
+    dispatcher_t *dispatcher;
+    dispatcher = malloc(sizeof(dispatcher_t));
+    
+    if(dispatcher == NULL) return NULL;
+
+    if(bounded_q == NULL || hashmap == NULL) {
+        free(dispatcher);
+        return NULL;
+    }
+    // Set memory fileds
+    dispatcher->bounded_q = bounded_q;
+    dispatcher->hash_m = hashmap;
+
+    if(trafilo_config == NULL) {
+        free(dispatcher);
+        return NULL;
+    }
+    // Set user callback functions
+    dispatcher->parse = trafilo_config->parse;
+    dispatcher->handle = trafilo_config->handle;
+    dispatcher->event_free = trafilo_config->event_free;
+
+    // Thread pool creation
+    if(trafilo_config->num_workers == 0) {
+        free(dispatcher);
+        return NULL; 
+    }
+    dispatcher->num_workers = trafilo_config->num_workers;
+
+    // Allocate memeory for threads
+    dispatcher->threads = malloc(sizeof(pthread_t) * dispatcher->num_workers);
+    if (dispatcher->threads == NULL) {
+        free(dispatcher);
+        return NULL;
+    }
+
+    dispatcher->done = 0;
+    dispatcher->started = 0;
+    return dispatcher;
+}
+
+int dispatcher_start(dispatcher_t *dispatcher);
+void dispatcher_stop(dispatcher_t *dispatcher);
+void dispatcher_destroy(dispatcher_t *dispatcher);
