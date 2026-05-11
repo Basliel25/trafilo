@@ -48,6 +48,25 @@ dispatcher_t *dispatcher_create(bounded_queue_t *bounded_q,
     return dispatcher;
 }
 
-int dispatcher_start(dispatcher_t *dispatcher);
+int dispatcher_start(dispatcher_t *dispatcher) {
+    if(dispatcher == NULL) return -1;
+
+    if(dispatcher->started) return -2;
+
+    // Spin worker threads
+    for (size_t i = 0; i < dispatcher->num_workers; i++) {
+        if (pthread_create(&dispatcher->threads[i], NULL, dispatcher_loop, dispatcher) != 0) {
+            // If thread creation fails, rollback and
+            // join previously created threads
+            bq_shutdown(dispatcher->bounded_q);
+            for (size_t j = 0; j < i; j++) {
+                pthread_join(dispatcher->threads[j], NULL);
+            }
+            return -1;
+        }
+    }
+    dispatcher->started = 1;
+    return 0;
+}
 void dispatcher_stop(dispatcher_t *dispatcher);
 void dispatcher_destroy(dispatcher_t *dispatcher);

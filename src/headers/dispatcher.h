@@ -39,7 +39,7 @@ dispatcher_t *dispatcher_create(bounded_queue_t *bounded_q,
 /*
  * @brief Start a dispatcher thread
  * @param dispatcher_t the dispatcher to be started
- * @return 0 on success, error codes if not
+ * @return 0 on success, -1 on empty dispatcher, -2 on Impodence
  */
 int dispatcher_start(dispatcher_t *dispatcher);
 
