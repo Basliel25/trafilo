@@ -212,11 +212,11 @@ void test_live_daemon_monitor(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    //RUN_TEST(test_listener_create_destroy);
-    //RUN_TEST(test_single_packet_received);
-    //RUN_TEST(test_burst_packets_received);
-    //RUN_TEST(test_shutdown_unblocks_listener);
-    //RUN_TEST(test_live_daemon_monitor);
+    RUN_TEST(test_listener_create_destroy);
+    RUN_TEST(test_single_packet_received);
+    RUN_TEST(test_burst_packets_received);
+    RUN_TEST(test_shutdown_unblocks_listener);
+    RUN_TEST(test_live_daemon_monitor);
 
     return UNITY_END();
 }
