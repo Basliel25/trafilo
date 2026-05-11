@@ -1,6 +1,7 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
