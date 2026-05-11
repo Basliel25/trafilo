@@ -21,7 +21,7 @@ $(BIN): $(OBJS)
 test: $(TEST_BINS)
 	@for t in $(TEST_BINS); do echo "Running $$t"; ./$$t; done
 
-build/test_%: tests/test_%.c src/%.c $(UNITY_SRC)
+build/test_%: tests/test_%.c $(SRCS) $(UNITY_SRC)
 	@mkdir -p build
 	$(CC) $(CFLAGS) -Itests/unity/src $^ -o $@ $(LDFLAGS)
 
