@@ -21,7 +21,7 @@ typedef struct listener_t {
     size_t max_line; /* The max lines work queue can handel*/
     pthread_t thread; /* Listening and populating thread */
     int started; /* Operation flag */
-    volatile int done; /* Atomic flag, for listener's thread*/
+    volatile int done; /* Atomic flag, for listener's thread, avoid compiler reordering for read/write on thread operations.*/
 } listener_t;
 
 /**
@@ -36,7 +36,7 @@ listener_t *listener_create(int port, bounded_queue_t *bounded_q, size_t max_lin
 /**
  * @brief Spawn the receive thread. 
  * @param listener  listener to start
- * @return   0 on success, -1 if pthread_create failed or already started
+ * @return   0 on success, -1 if pthread_create failed, -2 already started
  */
 int listener_start(listener_t *listener);
 
@@ -47,7 +47,7 @@ int listener_start(listener_t *listener);
  *
  * @param listener  listener to stop
  */
-void listener_stop(listener_t *l);
+void listener_stop(listener_t *listener);
 
 /**
  * @brief Free the listener and close its socket.
