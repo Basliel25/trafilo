@@ -4,6 +4,8 @@
 bounded_queue_t *bq_create(size_t capacity) {
     bounded_queue_t *bounded_q;
     
+    if(capacity == 0) return NULL;
+
     bounded_q = malloc(sizeof(bounded_queue_t));
     if(bounded_q == NULL) {
         free(bounded_q);

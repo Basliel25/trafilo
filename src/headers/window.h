@@ -21,7 +21,7 @@ typedef struct ts_node {
  * @brief A sliding sampling window represented as
  *        a linked list of timestamps.
  */
-typedef struct {
+typedef struct sliding_window_t {
     ts_node_t   *head;             /* oldest retained timestamp, eviction happens here */
     ts_node_t   *tail;             /* newest retained timestamp, insertion happens here*/
     size_t       count;            /* deque size */
