@@ -93,6 +93,9 @@ bucket_node *hashmap_find_or_create(hashmap_t *hashmap, const char *key) {
         return NULL;
     }
 
+    sliding_window_t *window = malloc(sizeof(sliding_window_t));
+    new_node->window = window;
+
     new_node->next = hashmap->buckets[bucket_idx];
     hashmap->buckets[bucket_idx] = new_node;
 
