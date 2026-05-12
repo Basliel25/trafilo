@@ -8,6 +8,9 @@
 #define WINDOW_H
 
 #include <time.h>
+#include <stdlib.h>
+#include <stdint.h>
+
 
 /**
  * @brief a timestamp node
@@ -58,7 +61,7 @@ void sliding_window_destroy(sliding_window_t *w);
  * @brief Append the event timpestamp as ts_node_t to tail
  *        evicts head while:
  *        head->ts < (event_ts - window_size_ms)
- * @return 0 on success, -1 on alloc error
+ * @return 0 on success, -1 on alloc error, -2 on empty sliding window
  */
 int  sliding_window_add(sliding_window_t *w, struct timespec event_ts);
 
