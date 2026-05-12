@@ -27,13 +27,14 @@ typedef struct hashmap_t {
     bucket_node **buckets; /* Array of chain buckets */
     pthread_mutex_t *locks; /* Array of per bucket locks*/
     size_t num_buckets; /* Number of buckets in hasmap */
+    trafilo_config_t *config;
 } hashmap_t;
 
 /**
  * @brief Create a hashmap
  * @param size_t num_buckets: Number of buckets
  */
-hashmap_t *hashmap_create(size_t num_buckets);
+hashmap_t *hashmap_create(size_t num_buckets, trafilo_config_t *config);
 
 /**
  * @brief Find bucket for key; create if absent. Returns with bucket->bucket_lock LOCKED.

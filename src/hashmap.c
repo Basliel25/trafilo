@@ -1,14 +1,18 @@
 #include "headers/hashmap.h" 
+#include "headers/window.h"
 
 
-hashmap_t *hashmap_create(size_t num_buckets) {
+hashmap_t *hashmap_create(size_t num_buckets, trafilo_config_t *config) {
     hashmap_t *hashmap;
     if(num_buckets == 0) return NULL;
+    if(config == NULL) return NULL;
 
     hashmap = malloc(sizeof(hashmap_t));
     if(hashmap == NULL) {
         return NULL;
     }
+
+    hashmap->config = config;
 
     hashmap->buckets = calloc(num_buckets, sizeof(bucket_node *));
 
@@ -94,6 +98,9 @@ bucket_node *hashmap_find_or_create(hashmap_t *hashmap, const char *key) {
     }
 
     sliding_window_t *window = malloc(sizeof(sliding_window_t));
+    sliding_window_init(window, 
+            hashmap->config->window_size_ms,
+            hashmap->config->slide_interval_ms);
     new_node->window = window;
 
     new_node->next = hashmap->buckets[bucket_idx];
@@ -111,6 +118,8 @@ void hashmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free) {
         while(current != NULL) {
             bucket_node *next = current->next;
             free(current->key);
+            // Free sliding winodw
+            free(next->window);
 
             // User provided state
             if (state_free && current->state)
@@ -125,6 +134,7 @@ void hashmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free) {
     for(size_t i = 0; i < hashmap->num_buckets; i++) {
         pthread_mutex_destroy(&hashmap->locks[i]);
     }
+    
 
     // Free all arrays
     free(hashmap->buckets);
