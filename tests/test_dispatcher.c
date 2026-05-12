@@ -132,16 +132,16 @@ void test_destroy_chains_through_stop(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    //RUN_TEST(test_create_returns_non_null_with_valid_args);
-    //RUN_TEST(test_create_rejects_null_queue);
-    //RUN_TEST(test_create_rejects_null_hashmap);
-    //RUN_TEST(test_create_rejects_null_config);
-    //RUN_TEST(test_create_rejects_zero_workers);
-    //RUN_TEST(test_start_then_stop_joins_cleanly);
-    //RUN_TEST(test_double_start_returns_already_started);
-    //RUN_TEST(test_stop_is_idempotent);
-    //RUN_TEST(test_destroy_without_start_does_not_leak);
-    //RUN_TEST(test_destroy_chains_through_stop);
+    RUN_TEST(test_create_returns_non_null_with_valid_args);
+    RUN_TEST(test_create_rejects_null_queue);
+    RUN_TEST(test_create_rejects_null_hashmap);
+    RUN_TEST(test_create_rejects_null_config);
+    RUN_TEST(test_create_rejects_zero_workers);
+    RUN_TEST(test_start_then_stop_joins_cleanly);
+    RUN_TEST(test_double_start_returns_already_started);
+    RUN_TEST(test_stop_is_idempotent);
+    RUN_TEST(test_destroy_without_start_does_not_leak);
+    RUN_TEST(test_destroy_chains_through_stop);
 
     return UNITY_END();
 }
