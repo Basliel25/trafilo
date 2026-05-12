@@ -91,3 +91,20 @@ int sliding_window_should_emit(const sliding_window_t *w, struct timespec now) {
     return 1; 
 }
 
+void sliding_window_mark_emitted(sliding_window_t *w, struct timespec now) {
+    if (w == NULL) return;
+    w->last_emit = now;
+}
+
+size_t sliding_window_count(const sliding_window_t *w) {return w ? w->count : 0;}
+
+struct timespec sliding_window_oldest(const sliding_window_t *w) {
+    if (w != NULL && w->head != NULL) return w->head->ts;
+    return (struct timespec){0, 0};
+}
+
+struct timespec sliding_window_newest(const sliding_window_t *w) {
+    if (w != NULL && w->tail != NULL) return w->tail->ts;
+    return (struct timespec){0, 0};
+}
+
