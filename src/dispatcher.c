@@ -25,10 +25,8 @@ dispatcher_t *dispatcher_create(bounded_queue_t *bounded_q,
         free(dispatcher);
         return NULL;
     }
-    // Set user callback functions
-    dispatcher->parse = trafilo_config->parse;
-    dispatcher->handle = trafilo_config->handle;
-    dispatcher->event_free = trafilo_config->event_free;
+    // Attach caller owned config struct to dispatch
+    dispatcher->config = trafilo_config;
 
     // Thread pool creation
     if(trafilo_config->num_workers == 0) {

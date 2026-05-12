@@ -10,11 +10,8 @@ typedef struct dispatcher_t {
     bounded_queue_t *bounded_q; /* Working bounded queue*/
     hashmap_t *hash_m; /* Events map*/
     
-    // User callback functions
-    trafilo_parse_fn parse;
-    trafilo_handle_fn handle;
-    trafilo_event_free_fn event_free;
 
+    const trafilo_config_t *config;
     // Thread pools
     size_t num_workers; /* Number of wokrer threads, fetched from trafilo_conifg_t*/
     pthread_t *threads; /* Array of worker thread pool*/
