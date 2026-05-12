@@ -267,6 +267,66 @@ static void push_line(const char *s) {
     TEST_ASSERT_EQUAL_INT(0, bq_push(bq, copy));
 }
 /* ---- tests ------------------------------------------------------- */
+
+void test_single_line_drives_parse_handle_free_once(void) {
+    reset_counters();
+    install_counting_callbacks();
+ 
+    push_line("hello");
+ 
+    dispatcher_t *d = dispatcher_create(bq, hm, &cfg);
+    TEST_ASSERT_NOT_NULL(d);
+    TEST_ASSERT_EQUAL_INT(0, dispatcher_start(d));
+    dispatcher_stop(d);
+ 
+    TEST_ASSERT_EQUAL_INT(1, parse_calls);
+    TEST_ASSERT_EQUAL_INT(1, handle_calls);
+    TEST_ASSERT_EQUAL_INT(1, event_free_calls);
+ 
+    dispatcher_destroy(d);
+}
+ 
+void test_state_init_called_exactly_once_per_key(void) {
+    reset_counters();
+    install_counting_callbacks();
+ 
+    for (int i = 0; i < 5; i++) push_line("anything");
+ 
+    dispatcher_t *d = dispatcher_create(bq, hm, &cfg);
+    dispatcher_start(d);
+    dispatcher_stop(d);
+ 
+    TEST_ASSERT_EQUAL_INT(5, parse_calls);
+    TEST_ASSERT_EQUAL_INT(5, handle_calls);
+    TEST_ASSERT_EQUAL_INT(5, event_free_calls);
+    TEST_ASSERT_EQUAL_INT(1, state_init_calls);  
+ 
+    dispatcher_destroy(d);
+}
+ 
+void test_state_accumulates_across_lines(void) {
+    reset_counters();
+    install_counting_callbacks();
+ 
+    push_line("a");
+    push_line("b");
+    push_line("c");
+ 
+    dispatcher_t *d = dispatcher_create(bq, hm, &cfg);
+    dispatcher_start(d);
+    dispatcher_stop(d);
+ 
+    bucket_node *bucket = hashmap_find_or_create(hm, "svc");
+    TEST_ASSERT_NOT_NULL(bucket);
+    test_state_t *s = (test_state_t *)bucket->state;
+    TEST_ASSERT_NOT_NULL(s);
+    TEST_ASSERT_EQUAL_INT(3, s->seen_events);
+    TEST_ASSERT_EQUAL_STRING("svc", s->key_copy);
+    hashmap_unlock_bucket(hm, "svc");
+ 
+    dispatcher_destroy(d);
+}
+ 
 //Runner
 int main(void) {
     UNITY_BEGIN();
