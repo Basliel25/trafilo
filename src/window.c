@@ -73,3 +73,21 @@ int sliding_window_add(sliding_window_t *w, struct timespec event_ts) {
     return 0;
 }
 
+
+int sliding_window_should_emit(const sliding_window_t *w, struct timespec now) {
+    if (w == NULL) return 1;
+
+    // If never emitted, the first event is the baseline.
+    // Return 0 to trigger the first sink
+    if (w->last_emit.tv_sec == 0) {
+        return 0;
+    }
+
+    if (timespec_diff_ms(w->last_emit, now) >= w->slide_ms) {
+        return 0;
+    }
+
+    // If False
+    return 1; 
+}
+
