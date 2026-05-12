@@ -8,7 +8,7 @@ static void *dispatcher_loop(void *arg){
 
     while(!dispatcher->done){
         // Pop a line from the queue
-        const char *raw_line = bq_pop(dispatcher->bounded_q);
+        char *raw_line = bq_pop(dispatcher->bounded_q);
         if(raw_line == NULL) 
             break;
         
