@@ -128,6 +128,120 @@ void test_destroy_chains_through_stop(void) {
     dispatcher_destroy(d);  /* must call stop internally — no hang */
     TEST_ASSERT_TRUE(1);
 }
+/****
+ * Test worker Loop
+ */
+ 
+//Counters and callbacks
+ 
+static int parse_calls;
+static int handle_calls;
+static int event_free_calls;
+static int state_init_calls;
+static int state_free_calls;
+static int parse_should_fail; /* if 1, parse returns -1 (drop) */
+ 
+typedef struct {
+    int seen_events;
+    char key_copy[64];  
+} test_state_t;
+ 
+static int counting_parse(const char *raw, size_t len, event_t **out) {
+    parse_calls++;
+    if (parse_should_fail) return -1;
+ 
+    event_t *e = malloc(sizeof(event_t));
+    if (e == NULL) return -1;
+ 
+    e->key = strdup("svc");  
+    if (e->key == NULL) { free(e); return -1; }
+ 
+    e->payload     = NULL;
+    e->payload_len = 0;
+    clock_gettime(CLOCK_MONOTONIC, &e->t_secs);
+ 
+    (void)raw;
+    (void)len;
+    *out = e;
+    return 0;
+}
+ 
+// parse variant that uses the raw line content as the key 
+static int per_line_key_parse(const char *raw, size_t len, event_t **out) {
+    parse_calls++;
+    event_t *e = malloc(sizeof(event_t));
+    if (e == NULL) return -1;
+ 
+    e->key = strdup(raw);
+    if (e->key == NULL) { free(e); return -1; }
+ 
+    e->payload     = NULL;
+    e->payload_len = 0;
+    clock_gettime(CLOCK_MONOTONIC, &e->t_secs);
+ 
+    (void)len;
+    *out = e;
+    return 0;
+}
+ 
+static void counting_handle(const event_t *event, void *user_state) {
+    handle_calls++;
+    if (user_state) {
+        test_state_t *s = (test_state_t *)user_state;
+        s->seen_events++;
+        if (event && event->key) {
+            strncpy(s->key_copy, event->key, sizeof(s->key_copy) - 1);
+        }
+    }
+}
+ 
+static void counting_event_free(event_t *event) {
+    event_free_calls++;
+    if (event) {
+        free(event->key);
+        free(event);
+    }
+}
+ 
+static void *counting_state_init(const char *key) {
+    state_init_calls++;
+    test_state_t *s = calloc(1, sizeof(test_state_t));
+    (void)key;
+    return s;
+}
+ 
+static void counting_state_free(void *user_state) {
+    state_free_calls++;
+    free(user_state);
+}
+ 
+static void reset_counters(void) {
+    parse_calls       = 0;
+    handle_calls      = 0;
+    event_free_calls  = 0;
+    state_init_calls  = 0;
+    state_free_calls  = 0;
+    parse_should_fail = 0;
+}
+ 
+static void install_counting_callbacks(void) {
+    cfg.parse       = counting_parse;
+    cfg.handle      = counting_handle;
+    cfg.event_free  = counting_event_free;
+    cfg.state_init  = counting_state_init;
+    cfg.state_free  = counting_state_free;
+    cfg.num_workers = 1;  /* serialize → counter math is exact */
+}
+ 
+static void push_line(const char *s) {
+    /* worker will free() this — must be heap-allocated */
+    char *copy = strdup(s);
+    TEST_ASSERT_NOT_NULL(copy);
+    TEST_ASSERT_EQUAL_INT(0, bq_push(bq, copy));
+}
+ 
+/* ---- helpers ------------------------------------------------------- */
+/* ---- tests ------------------------------------------------------- */
 //Runner
 int main(void) {
     UNITY_BEGIN();
