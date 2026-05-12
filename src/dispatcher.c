@@ -1,4 +1,5 @@
 #include "../include/trafilo.h"
+#include "headers/bounded_queue.h"
 #include "headers/dispatcher.h"
 
 static void *dispatcher_loop(void *arg){return NULL;}
@@ -68,5 +69,18 @@ int dispatcher_start(dispatcher_t *dispatcher) {
     dispatcher->started = 1;
     return 0;
 }
-void dispatcher_stop(dispatcher_t *dispatcher);
+void dispatcher_stop(dispatcher_t *dispatcher) {
+    if(dispatcher == NULL) return;
+
+    if(dispatcher->started) return;
+
+    //Terminate work and join threads
+    dispatcher->done = 1;
+    bq_shutdown(dispatcher->bounded_q);
+    for(size_t i = 0; i < dispatcher->num_workers; i++) {
+        pthread_join(dispatcher->threads[i], NULL);
+    }
+
+    dispatcher->started = 0;
+}
 void dispatcher_destroy(dispatcher_t *dispatcher);
