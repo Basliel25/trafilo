@@ -2,7 +2,67 @@
 #include "headers/bounded_queue.h"
 #include "headers/dispatcher.h"
 
-static void *dispatcher_loop(void *arg){return NULL;}
+static void *dispatcher_loop(void *arg){
+    dispatcher_t *dispatcher = (dispatcher_t *) arg;
+    const trafilo_config_t *config = dispatcher->config;
+
+    while(!dispatcher->done){
+        // Pop a line from the queue
+        const char *raw_line = bq_pop(dispatcher->bounded_q);
+        if(raw_line == NULL) 
+            break;
+        
+
+        size_t line_len = strlen(raw_line);
+
+        // Parsing Phase
+        // Event = Null
+        event_t *event = NULL;
+        int rc = config->parse(raw_line, line_len, &event);
+
+        if(rc != 0) {
+            // Parse rejected the line
+            // No event assigned
+            free(raw_line);
+            continue;
+        }
+
+        // Sanity check if key is set as NULL
+        if(event->key == NULL) {
+            config->event_free(event);
+            free(raw_line);
+            continue;
+        }
+
+        // Lookup and bucket creation
+        bucket_node *bucket = hashmap_find_or_create(dispatcher->hash_m, event->key);
+        if(bucket == NULL) {
+            // Internal hashmap failure
+            // No bucket created and no event assigned
+            config->event_free(event);
+            free(raw_line);
+        }
+
+        // Bucket node created succesfully
+        // State initialization
+        if(bucket->state == NULL && config->state_init != NULL) {
+            //Initalize and attach state to bucket
+            bucket->state = config->state_init(event->key);
+            // !! If state init is null, the user should handle it
+        }
+
+        config->handle(event, bucket->state);
+
+        // Assign bucket time space for window handling
+        bucket->last_event_ts = event->t_secs; 
+
+        hashmap_unlock_bucket(dispatcher->hash_m, bucket->key);
+
+        config->event_free(event);
+        free(raw_line);
+    }
+    return NULL;
+}
 
 dispatcher_t *dispatcher_create(bounded_queue_t *bounded_q, 
         hashmap_t *hashmap, 
