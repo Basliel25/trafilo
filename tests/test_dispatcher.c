@@ -48,6 +48,22 @@ void tearDown(void) {
 }
 // Tests
 
+void test_create_returns_non_null_with_valid_args(void) {
+    dispatcher_t *d = dispatcher_create(bq, hm, &cfg);
+    TEST_ASSERT_NOT_NULL(d);
+    dispatcher_destroy(d);
+}
+
+void test_create_rejects_null_queue(void) {
+    dispatcher_t *d = dispatcher_create(NULL, hm, &cfg);
+    TEST_ASSERT_NULL(d);
+}
+
+void test_create_rejects_null_hashmap(void) {
+    dispatcher_t *d = dispatcher_create(bq, NULL, &cfg);
+    TEST_ASSERT_NULL(d);
+}
+
 //Runner
 int main(void) {
     UNITY_BEGIN();
