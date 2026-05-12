@@ -6,7 +6,7 @@ static void *dispatcher_loop(void *arg){
     dispatcher_t *dispatcher = (dispatcher_t *) arg;
     const trafilo_config_t *config = dispatcher->config;
 
-    while(!dispatcher->done){
+    for(;;) {
         // Pop a line from the queue
         char *raw_line = bq_pop(dispatcher->bounded_q);
         if(raw_line == NULL) 
@@ -133,7 +133,6 @@ void dispatcher_stop(dispatcher_t *dispatcher) {
     if(!dispatcher->started) return;
 
     //Terminate work and join threads
-    dispatcher->done = 1;
     bq_shutdown(dispatcher->bounded_q);
     for(size_t i = 0; i < dispatcher->num_workers; i++) {
         pthread_join(dispatcher->threads[i], NULL);
