@@ -66,8 +66,8 @@ void sliding_window_destroy(sliding_window_t *w);
 int  sliding_window_add(sliding_window_t *w, struct timespec event_ts);
 
 /**
- * @brief Checks if now - last_emit >= slide_ms
- * @return 0 on true and 1 on false
+ * @brief Checks if it's time to emit (slide_ms elapsed since last emit).
+ * @return 1 if should emit, 0 otherwise.
  */
 int  sliding_window_should_emit(const sliding_window_t *w,
                                 struct timespec now);

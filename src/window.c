@@ -15,7 +15,7 @@ static long timespec_diff_ms(struct timespec start, struct timespec end) {
 }
 
 void sliding_window_init(sliding_window_t *w, long window_size_ms, long slide_ms) {
-    if (!w) return;
+    if (w == NULL) return;
     w->head = NULL;
     w->tail = NULL;
     w->count = 0;
@@ -26,7 +26,7 @@ void sliding_window_init(sliding_window_t *w, long window_size_ms, long slide_ms
 }
 
 void sliding_window_destroy(sliding_window_t *w) {
-    if (!w) return;
+    if (w == NULL) return;
     ts_node_t *curr = w->head;
     while (curr) {
         ts_node_t *next = curr->next;
@@ -75,20 +75,15 @@ int sliding_window_add(sliding_window_t *w, struct timespec event_ts) {
 
 
 int sliding_window_should_emit(const sliding_window_t *w, struct timespec now) {
-    if (w == NULL) return 1;
+    if (w == NULL) return 0;
 
     // If never emitted, the first event is the baseline.
     // Return 0 to trigger the first sink
     if (w->last_emit.tv_sec == 0) {
-        return 0;
+        return 1;
     }
 
-    if (timespec_diff_ms(w->last_emit, now) >= w->slide_ms) {
-        return 0;
-    }
-
-    // If False
-    return 1; 
+    return (timespec_diff_ms(w->last_emit, now) >= w->slide_ms); 
 }
 
 void sliding_window_mark_emitted(sliding_window_t *w, struct timespec now) {
