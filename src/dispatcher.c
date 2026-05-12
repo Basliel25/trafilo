@@ -72,7 +72,7 @@ int dispatcher_start(dispatcher_t *dispatcher) {
 void dispatcher_stop(dispatcher_t *dispatcher) {
     if(dispatcher == NULL) return;
 
-    if(dispatcher->started) return;
+    if(!dispatcher->started) return;
 
     //Terminate work and join threads
     dispatcher->done = 1;
@@ -83,4 +83,13 @@ void dispatcher_stop(dispatcher_t *dispatcher) {
 
     dispatcher->started = 0;
 }
-void dispatcher_destroy(dispatcher_t *dispatcher);
+
+void dispatcher_destroy(dispatcher_t *dispatcher) {
+    if(dispatcher == NULL) return;
+
+    // If dispatcher is not done terminate destroy
+    if(!dispatcher->done) dispatcher_stop(dispatcher);
+
+    free(dispatcher->threads);
+    free(dispatcher);
+}
