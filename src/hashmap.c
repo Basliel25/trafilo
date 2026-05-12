@@ -2,17 +2,14 @@
 #include "headers/window.h"
 
 
-hashmap_t *hashmap_create(size_t num_buckets, trafilo_config_t *config) {
+hashmap_t *hashmap_create(size_t num_buckets) {
     hashmap_t *hashmap;
     if(num_buckets == 0) return NULL;
-    if(config == NULL) return NULL;
 
     hashmap = malloc(sizeof(hashmap_t));
     if(hashmap == NULL) {
         return NULL;
     }
-
-    hashmap->config = config;
 
     hashmap->buckets = calloc(num_buckets, sizeof(bucket_node *));
 
@@ -98,9 +95,6 @@ bucket_node *hashmap_find_or_create(hashmap_t *hashmap, const char *key) {
     }
 
     sliding_window_t *window = malloc(sizeof(sliding_window_t));
-    sliding_window_init(window, 
-            hashmap->config->window_size_ms,
-            hashmap->config->slide_interval_ms);
     new_node->window = window;
 
     new_node->next = hashmap->buckets[bucket_idx];
