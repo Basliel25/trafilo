@@ -241,6 +241,31 @@ static void push_line(const char *s) {
 }
  
 /* ---- helpers ------------------------------------------------------- */
+
+static void reset_counters(void) {
+    parse_calls       = 0;
+    handle_calls      = 0;
+    event_free_calls  = 0;
+    state_init_calls  = 0;
+    state_free_calls  = 0;
+    parse_should_fail = 0;
+}
+ 
+static void install_counting_callbacks(void) {
+    cfg.parse       = counting_parse;
+    cfg.handle      = counting_handle;
+    cfg.event_free  = counting_event_free;
+    cfg.state_init  = counting_state_init;
+    cfg.state_free  = counting_state_free;
+    cfg.num_workers = 1;  /* serialize → counter math is exact */
+}
+ 
+static void push_line(const char *s) {
+    /* worker will free() this — must be heap-allocated */
+    char *copy = strdup(s);
+    TEST_ASSERT_NOT_NULL(copy);
+    TEST_ASSERT_EQUAL_INT(0, bq_push(bq, copy));
+}
 /* ---- tests ------------------------------------------------------- */
 //Runner
 int main(void) {
