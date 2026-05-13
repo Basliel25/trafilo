@@ -1,5 +1,6 @@
 #include "../include/trafilo.h"
 #include "headers/bounded_queue.h"
+#include <time.h>
 #include "headers/dispatcher.h"
 
 static void *dispatcher_loop(void *arg){
@@ -16,7 +17,6 @@ static void *dispatcher_loop(void *arg){
         size_t line_len = strlen(raw_line);
 
         // Parsing Phase
-        // Event = Null
         event_t *event = NULL;
         int rc = config->parse(raw_line, line_len, &event);
 
@@ -26,6 +26,8 @@ static void *dispatcher_loop(void *arg){
             free(raw_line);
             continue;
         }
+
+        // Window add?
 
         // Sanity check if key is set as NULL
         if(event->key == NULL) {
@@ -41,22 +43,49 @@ static void *dispatcher_loop(void *arg){
             // No bucket created and no event assigned
             config->event_free(event);
             free(raw_line);
+            continue;
         }
 
         // Bucket node created succesfully
         // State initialization
+        // !! If state init is null, the user should handle it
         if(bucket->state == NULL && config->state_init != NULL) {
             //Initalize and attach state to bucket
             bucket->state = config->state_init(event->key);
-            // !! If state init is null, the user should handle it
+        }
+        if(bucket->window == NULL) {
+            sliding_window_init(bucket->window,
+                    config->window_size_ms,
+                    config->slide_interval_ms);
         }
 
+        // Handle event according to user specification
         config->handle(event, bucket->state);
+        sliding_window_add(bucket->window, event->t_secs);
 
-        // Assign bucket time space for window handling
-        bucket->last_event_ts = event->t_secs; 
+        clock_gettime(CLOCK_MONOTONIC, &bucket->last_event_ts);
+
+        // If window should emit
+        struct timespec now;
+        clock_gettime(CLOCK_MONOTONIC, &now);
+
+        int should_emit = sliding_window_should_emit(bucket->window, now);
+        void *state_snapshot = NULL;
+        window_result_t window;
+        if(should_emit){
+            window_result_t window = { bucket->key, 
+                bucket->window->count, 
+                sliding_window_oldest(bucket->window),
+                sliding_window_newest(bucket->window)};
+            state_snapshot = bucket->state;
+            sliding_window_mark_emitted(bucket->window, now);
+
+        }
 
         hashmap_unlock_bucket(dispatcher->hash_m, bucket->key);
+
+        if(should_emit && config->sink != NULL)
+            config->sink(bucket->key, &window, bucket->state);
 
         config->event_free(event);
         free(raw_line);
@@ -145,7 +174,7 @@ void dispatcher_destroy(dispatcher_t *dispatcher) {
     if(dispatcher == NULL) return;
 
     // If dispatcher is not done terminate destroy
-    if(!dispatcher->done) dispatcher_stop(dispatcher);
+    if(dispatcher->started) dispatcher_stop(dispatcher);
 
     free(dispatcher->threads);
     free(dispatcher);
