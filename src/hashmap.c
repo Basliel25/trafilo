@@ -112,8 +112,7 @@ void hashmap_destroy(hashmap_t *hashmap, trafilo_state_free_fn state_free) {
         while(current != NULL) {
             bucket_node *next = current->next;
             free(current->key);
-            // Free sliding winodw
-            free(next->window);
+            free(current->window);
 
             // User provided state
             if (state_free && current->state)
