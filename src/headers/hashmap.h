@@ -1,5 +1,5 @@
-#ifndef HASMAP_H
-#define HASMAP_H
+#ifndef HASHMAP_H
+#define HASHMAP_H
 
 #include <pthread.h>
 #include <time.h>

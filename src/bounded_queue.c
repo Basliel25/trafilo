@@ -12,7 +12,7 @@ bounded_queue_t *bq_create(size_t capacity) {
 
     bounded_q->buf = malloc(sizeof(void *) * capacity);
     if(bounded_q->buf == NULL) {
-        free(bounded_q->buf);
+        free(bounded_q);
         return NULL;
     }
 
