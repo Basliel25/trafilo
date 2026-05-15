@@ -9,7 +9,7 @@
 #define MAX_LINE 2048
 
 struct trafilo {
-    trafilo_config_t conifg; /*< Owned copy of trafilo config*/
+    trafilo_config_t config; /*< Owned copy of trafilo config*/
     char *bind_addr_config; /*< config.bind_add_config, I will strdup it*/
 
     bounded_queue_t *bounded_q ;
@@ -47,7 +47,39 @@ static int validate_config(const trafilo_config_t *config) {
 }
 
 trafilo_t *trafilo_create(const trafilo_config_t *config) {
-    return NULL;
+    if(validate_config(config) != 0) return NULL;
+
+    trafilo_t *trafilo = calloc(1, sizeof(trafilo_t));
+    if(trafilo == NULL) return NULL;
+
+    trafilo->config = *config;
+
+    // Copy binding addr from config file and manage pointers
+    if(config->bind_addr != NULL) {
+        trafilo->bind_addr_config = strdup(config->bind_addr);
+        if(trafilo->bind_addr_config == NULL) goto ;//addr fail condition free(trafilo)
+        trafilo->config.bind_addr = trafilo->bind_addr_config; // Make sure pointers are right
+    }
+
+    // Lifecycle thread protection
+    if(pthread_mutex_init(&trafilo->shutdown_lock, NULL) != 0) goto ; // mutex fail, Free bind_addr
+    if(pthread_cond_init(&trafilo->shutdown_cond, NULL) != 0) goto ; // cond fail, destroy mutex
+
+    // Build every single module
+    trafilo->bounded_q = bq_create(QUEUE_CAPACITY);
+    if(trafilo->bounded_q == NULL) goto ; // Failed queue creation destroy cond variable
+    
+    trafilo->hash_m = hashmap_create(config->num_buckets);
+    if(trafilo->hash_m == NULL) goto ; // Hashmap creation failed free queue
+
+    trafilo->dispatcher = dispatcher_create(trafilo->bounded_q, trafilo->hash_m, trafilo->config);
+    if(trafilo->dispatcher == NULL) goto; //Dispatcher creation failed free hashmap
+                                          
+    trafilo->listener = listener_create(config->port, trafilo->bounded_q, MAX_LINE);
+    if(trafilo->listener == NULL) goto; // Listener creation failed free dispatcher
+
+
+    return trafilo;
 }
 
 int trafilo_run(trafilo_t *t);
