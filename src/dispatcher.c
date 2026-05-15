@@ -85,7 +85,7 @@ static void *dispatcher_loop(void *arg){
         hashmap_unlock_bucket(dispatcher->hash_m, bucket->key);
 
         if(should_emit && config->sink != NULL)
-            config->sink(bucket->key, &window, bucket->state);
+            config->sink(bucket->key, &window, state_snapshot);
 
         config->event_free(event);
         free(raw_line);
