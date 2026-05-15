@@ -113,6 +113,7 @@ int trafilo_run(trafilo_t *trafilo) {
 
     // Stop worker/producers
     listener_stop(trafilo->listener);
+    bq_shutdown(trafilo->bounded_q);
     dispatcher_stop(trafilo->dispatcher);
 
     trafilo->running = 0;
