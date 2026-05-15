@@ -44,9 +44,14 @@ static int validate_config(const trafilo_config_t *config) {
             config->slide_interval_ms <= 0) return -1; /*Invalid window configs*/
     if(config->port == 0) return -1; /* Empty port*/
     return 0;
-    
 }
 
-trafilo_t *trafilo_create(const trafilo_config_t *cfg);
+trafilo_t *trafilo_create(const trafilo_config_t *config) {
+    return NULL;
+}
 
+int trafilo_run(trafilo_t *t);
+int trafilo_emit(trafilo_t *t, const char *raw, size_t len);
+void trafilo_destroy(trafilo_t *t);
+void trafilo_shutdown(trafilo_t *t);
 int main() {return 0;}
