@@ -1,4 +1,4 @@
 dummyDameon/test_dameon.sh
 tests/unity/
 *.o
-trafilo.c
+build
