@@ -53,7 +53,7 @@ static void *dispatcher_loop(void *arg){
             //Initalize and attach state to bucket
             bucket->state = config->state_init(event->key);
         }
-        if(bucket->window == NULL) {
+        if(bucket->window->window_size_ms == 0) {
             sliding_window_init(bucket->window,
                     config->window_size_ms,
                     config->slide_interval_ms);
@@ -73,7 +73,7 @@ static void *dispatcher_loop(void *arg){
         void *state_snapshot = NULL;
         window_result_t window;
         if(should_emit){
-            window_result_t window = { bucket->key, 
+            window = (window_result_t){bucket->key, 
                 bucket->window->count, 
                 sliding_window_oldest(bucket->window),
                 sliding_window_newest(bucket->window)};
