@@ -5,6 +5,9 @@
 #include "headers/dispatcher.h"
 #include "../include/trafilo.h"
 
+#define QUEUE_CAPACITY 4096
+#define MAX_LINE 2048
+
 struct trafilo {
     trafilo_config_t conifg; /*< Owned copy of trafilo config*/
     char *bind_addr_config; /*< config.bind_add_config, I will strdup it*/
@@ -22,5 +25,14 @@ struct trafilo {
     int shutdown_flag;
     int running;
 };
+
+/**
+ * @brief Validate the trafilo_config_t state
+ * @param const trafilo_conifg_t
+ * @return 0 on valid state, -1 on error
+ */
+static int validate_config(const trafilo_config_t);
+
+trafilo_t *trafilo_create(const trafilo_config_t *cfg);
 
 int main() {return 0;}
