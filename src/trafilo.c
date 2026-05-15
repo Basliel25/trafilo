@@ -119,7 +119,14 @@ int trafilo_run(trafilo_t *trafilo) {
     trafilo->running = 0;
     return 0;
 }
+void trafilo_shutdown(trafilo_t *trafilo) {
+    if(trafilo == NULL) return;
+
+    pthread_mutex_lock(&trafilo->shutdown_lock);
+    trafilo->shutdown_flag = 1;
+    pthread_cond_signal(&trafilo->shutdown_cond);
+    pthread_mutex_unlock(&trafilo->shutdown_lock);
+}
 int trafilo_emit(trafilo_t *t, const char *raw, size_t len);
 void trafilo_destroy(trafilo_t *t);
-void trafilo_shutdown(trafilo_t *t);
 int main() {return 0;}
