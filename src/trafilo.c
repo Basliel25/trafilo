@@ -37,7 +37,12 @@ static int validate_config(const trafilo_config_t *config) {
             config->handle == NULL ||
             config->event_free == NULL) return -1; /* Empty callbacks */
 
-    if(config->num_buckets == 0 || config->num_workers == 0) return -1; /* Invlaid workers or bucketsquantitiy*/
+    if(config->num_buckets == 0 ||
+            config->num_workers == 0) return -1; /* Invlaid workers or bucketsquantitiy*/
+
+    if(config->window_size_ms <= 0 || 
+            config->slide_interval_ms <= 0) return -1; /*Invalid window configs*/
+    if(config->port == 0) return -1; /* Empty port*/
     return 0;
     
 }
