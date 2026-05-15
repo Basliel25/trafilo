@@ -80,6 +80,15 @@ trafilo_t *trafilo_create(const trafilo_config_t *config) {
 
 
     return trafilo;
+    //Fail conditions
+fail_listener : free(trafilo->dispatcher);
+fail_dispatcher : free(trafilo->hash_m);
+fail_hashmap : free(trafilo->bounded_q);
+fail_queue : pthread_cond_destroy(&trafilo->shutdown_cond);
+fail_cond : pthread_mutex_destroy(&trafilo->shutdown_lock);
+fail_mutex : free(trafilo->bind_addr_config);
+fail_addr : free(trafilo);
+            return NULL;
 }
 
 int trafilo_run(trafilo_t *t);
