@@ -151,5 +151,14 @@ void trafilo_destroy(trafilo_t *trafilo) {
     free(trafilo);
 
 }
-int trafilo_emit(trafilo_t *t, const char *raw, size_t len);
-int main() {return 0;}
+int trafilo_emit(trafilo_t *trafilo, const char *raw_line, size_t len) {
+    if(trafilo == NULL ||
+            raw_line == NULL) return -1;
+
+    char *copy = malloc(len + 1);
+    if (copy == NULL) return -1;
+    memcpy(copy, raw_line, len);
+    copy[len] = '\0';
+
+    return 0;
+}
