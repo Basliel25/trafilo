@@ -31,7 +31,16 @@ struct trafilo {
  * @param const trafilo_conifg_t
  * @return 0 on valid state, -1 on error
  */
-static int validate_config(const trafilo_config_t);
+static int validate_config(const trafilo_config_t *config) {
+    if(config == NULL) return -1; /* Empty config*/
+    if(config->parse == NULL ||
+            config->handle == NULL ||
+            config->event_free == NULL) return -1; /* Empty callbacks */
+
+    if(config->num_buckets == 0 || config->num_workers == 0) return -1; /* Invlaid workers or bucketsquantitiy*/
+    return 0;
+    
+}
 
 trafilo_t *trafilo_create(const trafilo_config_t *cfg);
 
