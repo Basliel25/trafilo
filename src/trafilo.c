@@ -102,6 +102,14 @@ int trafilo_run(trafilo_t *trafilo) {
     } 
 
     trafilo->running = 1; // Mark start of running
+
+    // Block everything until trafilo_shutdown signals
+    // that work is done
+    pthread_mutex_lock(&trafilo->shutdown_lock);
+    while(1) {
+        pthread_cond_wait(&trafilo->shutdown_cond, &trafilo->shutdown_lock);
+    }
+    pthread_mutex_unlock(&trafilo->shutdown_lock);
 }
 int trafilo_emit(trafilo_t *t, const char *raw, size_t len);
 void trafilo_destroy(trafilo_t *t);
