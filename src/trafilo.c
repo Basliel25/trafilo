@@ -7,14 +7,20 @@
 
 struct trafilo {
     trafilo_config_t conifg; /*< Owned copy of trafilo config*/
+    char *bind_addr_config; /*< config.bind_add_config, I will strdup it*/
+
     bounded_queue_t *bounded_q ;
     hashmap_t *hash_m;
     listener_t *listener;
     dispatcher_t *dispatcher;
 
+    // Thread control
     pthread_mutex_t shutdown_lock;
     pthread_cond_t shutdown_cond;
+
+    // Flags
     int shutdown_flag;
+    int running;
 };
 
 int main() {return 0;}
