@@ -1,6 +1,7 @@
 #include "headers/window.h"
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /**
  * @brief Helper to calculate difference in milliseconds between two timespecs.
