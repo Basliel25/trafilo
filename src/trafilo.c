@@ -160,5 +160,9 @@ int trafilo_emit(trafilo_t *trafilo, const char *raw_line, size_t len) {
     memcpy(copy, raw_line, len);
     copy[len] = '\0';
 
+    if (bq_push(trafilo->bounded_q, copy) != 0) {
+        free(copy);
+        return -1;
+    }
     return 0;
 }
