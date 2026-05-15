@@ -91,7 +91,18 @@ fail_addr : free(trafilo);
             return NULL;
 }
 
-int trafilo_run(trafilo_t *t);
+int trafilo_run(trafilo_t *trafilo) {
+    if(trafilo == NULL) return -1;
+
+    // Starting consumers and workers
+    if(dispatcher_start(trafilo->dispatcher) != 0) return -1;
+    if(listener_start(trafilo->listener) != 0) {
+        dispatcher_stop(trafilo->dispatcher);
+        return -1;
+    } 
+
+    trafilo->running = 1; // Mark start of running
+}
 int trafilo_emit(trafilo_t *t, const char *raw, size_t len);
 void trafilo_destroy(trafilo_t *t);
 void trafilo_shutdown(trafilo_t *t);
