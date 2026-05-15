@@ -127,6 +127,29 @@ void trafilo_shutdown(trafilo_t *trafilo) {
     pthread_cond_signal(&trafilo->shutdown_cond);
     pthread_mutex_unlock(&trafilo->shutdown_lock);
 }
+void trafilo_destroy(trafilo_t *trafilo) {
+    if(trafilo == NULL) return;
+    if(trafilo->running) {
+        trafilo_shutdown(trafilo);
+        // IN the case that there are other theads
+        // running trafilo_run, no possible 
+        // way to merge so just stop modules
+        listener_stop(trafilo->listener);
+        bq_shutdown(trafilo->bounded_q);
+        dispatcher_stop(trafilo->dispatcher);
+    }
+    
+    listener_destroy(trafilo->listener);
+    dispatcher_destroy(trafilo->dispatcher);
+    hashmap_destroy(trafilo->hash_m, trafilo->config.state_free);
+    bq_destroy(trafilo->bounded_q);
+
+    pthread_cond_destroy(&trafilo->shutdown_cond);
+    pthread_mutex_destroy(&trafilo->shutdown_lock);
+
+    free(trafilo->bind_addr_config);
+    free(trafilo);
+
+}
 int trafilo_emit(trafilo_t *t, const char *raw, size_t len);
-void trafilo_destroy(trafilo_t *t);
 int main() {return 0;}
