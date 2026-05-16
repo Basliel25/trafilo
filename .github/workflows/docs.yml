@@ -1,0 +1,38 @@
+name: docs
+
+on:
+  push:
+    branches: [gh-pages]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen
+
+      - name: generate api reference
+        run: doxygen Doxyfile
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: install astro deps
+        run: cd docs && npm install
+
+      - name: build astro
+        run: cd docs && npm run build
+
+      - name: copy doxygen into astro dist
+        run: cp -r docs/api dist/api
+
+      - name: deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
