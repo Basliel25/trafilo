@@ -2,3 +2,5 @@ dummyDameon/test_dameon.sh
 tests/unity/
 *.o
 build
+main.c
+examples/
