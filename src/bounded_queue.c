@@ -91,6 +91,7 @@ void bq_shutdown(bounded_queue_t *bounded_q) {
     pthread_mutex_lock(&bounded_q->mu_lock);
     if(bounded_q->done) {
         pthread_mutex_unlock(&bounded_q->mu_lock);
+        return;
     }
     bounded_q->done = 1;
 
