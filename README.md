@@ -2,7 +2,7 @@
 
 > Conccurnt streaming event-handler framework in C. Written from scratch:)
 
-![hiveparser demo](docs/img/hiveparser.gif)
+![hiveparser demo](docs/assets/hiveparser.gif)
 
 [![build](https://github.com/Basliel25/trafilo/actions/workflows/ci.yml/badge.svg)](https://github.com/Basliel25/trafilo/actions)
 [![version](https://img.shields.io/badge/version-0.1.0-blue)]()
