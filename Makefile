@@ -4,6 +4,7 @@
 #   make static     - build/libtrafilo.a
 #   make shared     - build/libtrafilo.so.<VER> (+ SONAME + linker name symlinks)
 #   make pc         - build/trafilo.pc
+#   make examples   - build/examples/<name> for each examples/<name>.c
 #   make test       - build and run unit tests
 #   make install    - install lib/headers/pc to $(DESTDIR)$(PREFIX)
 #   make uninstall  - remove installed files
@@ -48,16 +49,24 @@ SHARED_SONAME  := $(BUILDDIR)/libtrafilo.so.$(SOVERSION)
 SHARED_LINKER  := $(BUILDDIR)/libtrafilo.so
 PC_FILE        := $(BUILDDIR)/trafilo.pc
 
+# Examples
+EXAMPLE_SRCS := $(wildcard examples/*.c)
+EXAMPLE_BINS := $(EXAMPLE_SRCS:examples/%.c=$(BUILDDIR)/examples/%)
+EXAMPLE_LIBS_hiveparser := -lncurses
+
 # Tests
 UNITY_SRC := tests/unity/src/unity.c
 TEST_SRCS := $(wildcard tests/test_*.c)
 TEST_BINS := $(TEST_SRCS:tests/test_%.c=$(BUILDDIR)/test_%)
 
-.PHONY: all static shared pc test install uninstall clean
+.PHONY: all static shared pc examples test install uninstall clean
 all: static shared pc
 
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)
+
+$(BUILDDIR)/examples: | $(BUILDDIR)
+	@mkdir -p $(BUILDDIR)/examples
 
 # Two different object tres to avoid conflict
 # Non-PIC objects
@@ -110,6 +119,12 @@ test: $(TEST_BINS)
 
 $(BUILDDIR)/test_%: tests/test_%.c $(STATIC_LIB) $(UNITY_SRC) | $(BUILDDIR)
 	$(CC) $(CFLAGS) -Itests/unity/src $< $(UNITY_SRC) $(STATIC_LIB) -o $@ $(LDFLAGS)
+
+# Examples
+examples: $(EXAMPLE_BINS)
+
+$(BUILDDIR)/examples/%: examples/%.c $(STATIC_LIB) | $(BUILDDIR)/examples
+	$(CC) $(CFLAGS) $< $(STATIC_LIB) -o $@ $(LDFLAGS) $(EXAMPLE_LIBS_$*)
 
 # Install directives
 INSTALL      ?= install
