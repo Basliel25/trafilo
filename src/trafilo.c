@@ -72,7 +72,7 @@ trafilo_t *trafilo_create(const trafilo_config_t *config) {
     trafilo->hash_m = hashmap_create(config->num_buckets);
     if(trafilo->hash_m == NULL) goto fail_hashmap; // Hashmap creation failed free queue
 
-    trafilo->dispatcher = dispatcher_create(trafilo->bounded_q, trafilo->hash_m, trafilo->config);
+    trafilo->dispatcher = dispatcher_create(trafilo->bounded_q, trafilo->hash_m, config);
     if(trafilo->dispatcher == NULL) goto fail_dispatcher; //Dispatcher creation failed free hashmap
                                           
     trafilo->listener = listener_create(config->port, trafilo->bounded_q, MAX_LINE);

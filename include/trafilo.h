@@ -112,18 +112,18 @@ typedef struct trafilo trafilo_t;
  * @brief Create a framework instance.
  * @return new trafilo_t* on success, NULL on invalid config or alloc failure.
  */
-trafilo_t *trafilo_create(const trafilo_config_t *cfg);
+trafilo_t *trafilo_create(const trafilo_config_t *config);
 
 /**
  * @brief Run the framework. Blocks until trafilo_shutdown() is called.
  * @return 0 on clean shutdown, non-zero on error
  */
-int trafilo_run(trafilo_t *t);
+int trafilo_run(trafilo_t *trafilo);
 
 /**
  * @brief Signal the framework to shut down.
  */
-void trafilo_shutdown(trafilo_t *t);
+void trafilo_shutdown(trafilo_t *trafilo);
 
 /**
  * @brief Free all resources. 
