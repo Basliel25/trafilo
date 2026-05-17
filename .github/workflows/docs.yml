@@ -23,7 +23,7 @@ jobs:
           node-version: 20
 
       - name: install astro deps
-        run: cd docs && npm install
+        run: cd docs && rm -rf node_modules package-lock.json && npm install
 
       - name: build astro
         run: cd docs && npx astro build
