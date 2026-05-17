@@ -10,6 +10,9 @@
 
 ---
 
+> READ THE [DOCS](https://basliel25.github.io/trafilo/)
+> READ [HOW I MADE IT - blog in the work)
+
 ## Synopsis
 
 Trafilo is a conccurent single-machine streaming framework in C. It accepts streams of events (v0.1.0 only supports a UDP stream of raw events) , a parser, and a set of callbacks. It then orchastrates the rest including **dispatching events by key across a worker pool**, **maintaining per-key state**, **accumulating events into sliding windows**, and **calling a user defined sink when a window emits**. The framework owns the threading and synchronization while granting maximal freedom on domain logic to the user.
