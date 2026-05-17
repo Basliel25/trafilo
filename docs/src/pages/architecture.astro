@@ -12,57 +12,57 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
 
     <h2>ARCHITECTURE</h2>
     <p>
-      Trafilo decouples network ingestion from event execution. It separates state by key to eliminate global lock contention. The system operates through five internal components.
+      Trafilo processes 10,000 UDP datagrams per second. A single global lock around state modifications destroys throughput. Trafilo decouples ingestion from execution and separates state by key to eliminate contention. The architecture consists of a network listener, a bounded queue, a thread pool, and a sharded hashmap.
     </p>
 
-    <h3>1. Ingestion</h3>
+    <h3>Ingestion and Backpressure</h3>
     <p>
-      A dedicated listener thread binds to the UDP port. It receives datagrams and pushes raw buffers onto the <code><a href={`${base}/api/structbounded__queue__t.html`}>bounded_queue_t</a></code>. The queue provides backpressure between the network interface and the processing workers. If the worker pool saturates, the queue fills. The listener discards incoming packets until queue capacity returns.
+      A dedicated listener thread executes <code><a href={`${base}/api/socket_8h.html`}>listener_loop</a></code>. It invokes <code>recvfrom</code> to capture datagrams. It pushes the raw buffer onto the <code><a href={`${base}/api/structbounded__queue__t.html`}>bounded_queue_t</a></code> via <code><a href={`${base}/api/bounded__queue_8h.html`}>bq_push</a></code>. The queue enforces backpressure. When the worker pool saturates, the queue reaches capacity. The <code>bq_push</code> call blocks. The listener thread halts and the kernel drops incoming UDP packets. This mechanism prevents memory exhaustion under extreme load.
     </p>
 
-    <h3>2. Dispatch</h3>
-    <p>
-      A configurable pool of worker threads extract entries from the queue concurrently. The <code><a href={`${base}/api/structdispatcher__t.html`}>dispatcher_t</a></code> invokes the user-provided parser callback to transform the raw buffer into an <code><a href={`${base}/api/structevent__t.html`}>event_t</a></code> struct. Parsing occurs concurrently across the thread pool.
-    </p>
-
-    <pre><code class="language-c">void *worker_loop(void *arg) &#123;
-    dispatcher_t *d = arg;
-    while (!d->done) &#123;
-        char *raw = bq_pop(d->bounded_q);
-        if (!raw) continue;
-
-        event_t *ev;
-        if (d->config->parse(raw, strlen(raw), &ev) == 0) &#123;
-            process_event(d, ev);
-        &#125;
-        free(raw);
+    <pre><code class="language-c">/* Excerpt from socket.c */
+while (!listener->done) &#123;
+    ssize_t num_bytes = recvfrom(listener->sockfd, buf, listener->max_line - 1, 0, NULL, NULL);
+    if (num_bytes > 0) &#123;
+        buf[num_bytes] = '\0';
+        bq_push(listener->bounded_q, buf);
+        buf = malloc(listener->max_line); /* Allocate next buffer */
     &#125;
-    return NULL;
 &#125;</code></pre>
 
-    <h3>3. Sharded State</h3>
+    <h3>Event Dispatch</h3>
     <p>
-      The Dispatcher determines the bucket for the event key in the <code><a href={`${base}/api/structhashmap__t.html`}>hashmap_t</a></code>. The Hashmap implements per-bucket mutexes. A worker thread acquires the lock for the target bucket. Thread operations on independent keys execute in parallel. Operations on identical keys serialize. 
-    </p>
-    <p>
-      The framework acquires the bucket lock before invoking the user <code>handle_fn</code> and releases the lock after the function returns. The caller is guaranteed thread-safety for operations modifying the <code>user_state</code> associated with that key.
+      The <code><a href={`${base}/api/structdispatcher__t.html`}>dispatcher_t</a></code> manages a pool of worker threads. Each thread executes <code>worker_loop</code>. A thread invokes <code><a href={`${base}/api/bounded__queue_8h.html`}>bq_pop</a></code> to acquire a raw buffer. It invokes the user-provided <code>parse_fn</code> to instantiate an <code><a href={`${base}/api/structevent__t.html`}>event_t</a></code>. Parsing executes concurrently across the pool.
     </p>
 
-    <pre><code class="language-c">bucket_node *b = hashmap_find_or_create(d->hash_m, ev->key);
-/* b->lock is now held by this thread */
+    <h3>State Synchronization</h3>
+    <p>
+      The framework shards state by key. The <code><a href={`${base}/api/structhashmap__t.html`}>hashmap_t</a></code> manages an array of buckets. Each bucket contains a dedicated POSIX mutex. A worker thread invokes <code><a href={`${base}/api/hashmap_8h.html`}>hashmap_find_or_create</a></code>. This function hashes the event key, locates the target bucket, and acquires its mutex. The function returns the locked bucket.
+    </p>
+    <p>
+      Operations on distinct keys execute in parallel. Operations on identical keys serialize. The caller modifies <code>user_state</code> without implementing internal locks. The framework invokes the user-provided <code>handle_fn</code> while holding the bucket lock. The worker invokes <code><a href={`${base}/api/hashmap_8h.html`}>hashmap_unlock_bucket</a></code> upon completion.
+    </p>
+
+    <pre><code class="language-c">/* Excerpt from dispatcher.c */
+bucket_node *b = hashmap_find_or_create(d->hash_m, ev->key);
+/* The thread holds the bucket lock */
+
+if (!b->state && d->config->state_init) &#123;
+    b->state = d->config->state_init(ev->key);
+&#125;
 
 d->config->handle(ev, b->state);
 
 hashmap_unlock_bucket(d->hash_m, ev->key);</code></pre>
 
-    <h3>4. Temporal Aggregation</h3>
+    <h3>Temporal Aggregation</h3>
     <p>
-      The bucket node stores a <code><a href={`${base}/api/structsliding__window__t.html`}>sliding_window_t</a></code>. The window is a linked list of event timestamps. The framework evicts timestamps older than the retention horizon while holding the bucket lock. This mechanism avoids secondary eviction threads.
+      The <code><a href={`${base}/api/structbucket__node.html`}>bucket_node</a></code> stores a <code><a href={`${base}/api/structsliding__window__t.html`}>sliding_window_t</a></code>. The window maintains a linked list of event timestamps. The framework invokes <code><a href={`${base}/api/window_8h.html`}>sliding_window_add</a></code> to append the current event. The function traverses the list and evicts timestamps older than <code>window_size_ms</code>. Eviction executes under the bucket lock. This design eliminates the necessity for a secondary garbage-collection thread.
     </p>
 
-    <h3>5. Sink Output</h3>
+    <h3>Sink Output</h3>
     <p>
-      The framework evaluates the slide interval during the bucket update. If the interval elapsed since the last emission, the worker invokes the user <code>sink_fn</code> with a snapshot of the window counts and the associated <code>user_state</code>.
+      The framework evaluates <code>slide_interval_ms</code> against the current clock during the bucket update. If the interval has elapsed, the worker invokes the user-provided <code>sink_fn</code>. The callback receives a <code><a href={`${base}/api/structwindow__result__t.html`}>window_result_t</a></code> containing the boundary timestamps, the event count, and the associated <code>user_state</code>.
     </p>
   </main>
 </Layout>

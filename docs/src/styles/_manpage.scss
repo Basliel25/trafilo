@@ -73,21 +73,7 @@
     }
 
     .status-indicator {
-      margin-top: 16px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--ink);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .blinker {
-        width: 8px;
-        height: 8px;
-        background: var(--accent);
-        border-radius: 0;
-        animation: blink 2s infinite step-end;
-      }
+      display: none;
     }
   }
 
@@ -132,10 +118,13 @@
       }
 
       &.api-link {
-        color: var(--purple);
+        color: var(--ink);
         font-weight: bold;
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 4px;
         &:hover {
-          background: var(--purple);
+          background: var(--ink);
           color: var(--paper);
         }
       }
@@ -204,7 +193,7 @@
     
     &::before {
       content: '## ';
-      color: var(--accent);
+      color: var(--ink-dim);
     }
   }
 
@@ -217,7 +206,7 @@
     
     &::before {
       content: '### ';
-      color: var(--purple);
+      color: var(--ink-dim);
     }
   }
 
@@ -231,15 +220,15 @@
   }
 
   a {
-    color: var(--ink);
+    color: var(--purple);
     text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-decoration-color: var(--accent);
+    text-decoration-thickness: 1px;
+    text-decoration-style: solid;
     text-underline-offset: 4px;
     font-weight: bold;
 
     &:hover {
-      background: var(--accent);
+      background: var(--purple);
       color: var(--paper);
     }
   }
