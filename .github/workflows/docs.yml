@@ -26,7 +26,7 @@ jobs:
         run: cd docs && npm install
 
       - name: build astro
-        run: cd docs && npm run build
+        run: cd docs && npx astro build
 
       - name: copy doxygen into astro dist
         run: cp -r docs/api docs/dist/api
