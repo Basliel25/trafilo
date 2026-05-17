@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
+---
+
+<Layout>
+  <main class="manpage">
+    <header class="manpage__header">
+      <h1>TRAFILO</h1>
+      <span class="manual-vol">1</span>
+    </header>
+
+    <h2>NAME</h2>
+    <dl class="man-term-list">
+      <div class="man-row">
+        <dt>trafilo</dt>
+        <dd>A concurrent, stateful streaming event-handler framework written in C.</dd>
+      </div>
+    </dl>
+
+    <h2>SYNOPSIS</h2>
+    <pre><code class="language-c">#include &lt;trafilo.h&gt;
+
+trafilo_config_t cfg = &#123; ... &#125;;
+trafilo_t *t = trafilo_create(&cfg);
+trafilo_run(t);
+trafilo_shutdown(t);
+trafilo_destroy(t);</code></pre>
+
+    <h2>DESCRIPTION</h2>
+    <p>
+      Trafilo runs continuously. It binds to a UDP socket, receives raw datagrams, and distributes them to a concurrent worker pool. The framework orchestrates ingestion, dispatches events by key across sharded buckets, maintains per-key state, accumulates events into sliding windows, and invokes a user-defined sink function when a window emits. Trafilo manages threading and synchronization via the <code><a href={`${base}/api/structtrafilo.html`}>trafilo_t</a></code> opaque handle. The caller provides the domain logic via <code><a href={`${base}/api/structtrafilo__config__t.html`}>trafilo_config_t</a></code>.
+    </p>
+  </main>
+</Layout>

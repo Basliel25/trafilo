@@ -1,0 +1,313 @@
+@use 'mixins' as *;
+
+.layout-wrapper {
+  display: flex;
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-left: 2px solid var(--ink);
+  border-right: 2px solid var(--ink);
+  background: var(--paper);
+}
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 2px dashed var(--ink);
+  padding: 40px 24px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--paper);
+  color: var(--ink);
+
+  .sidebar-header {
+    margin-bottom: 40px;
+    
+    .pixel-art-logo {
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      font-family: 'VT323', monospace;
+      font-size: 48px;
+      color: var(--ink);
+      margin: 0;
+      line-height: 1;
+    }
+    
+    .version {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--paper);
+      background: var(--ink);
+      padding: 2px 6px;
+      display: inline-block;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .theme-toggle {
+      display: block;
+      margin-top: 24px;
+      padding: 6px 12px;
+      background: var(--paper);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: bold;
+      transition: all 0.1s;
+      
+      &:hover {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      
+      &:active {
+        background: var(--accent);
+        color: var(--ink);
+      }
+    }
+
+    .status-indicator {
+      margin-top: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .blinker {
+        width: 8px;
+        height: 8px;
+        background: var(--accent);
+        border-radius: 0;
+        animation: blink 2s infinite step-end;
+      }
+    }
+  }
+
+  .nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    .separator {
+      margin: 24px 0;
+      color: var(--ink-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--ink);
+      text-decoration: none;
+      padding: 8px 12px;
+      display: block;
+      border: 1px solid transparent;
+
+      .nav-num {
+        color: var(--ink-dim);
+        margin-right: 8px;
+      }
+
+      &:hover {
+        border-color: var(--ink);
+      }
+
+      &.active {
+        background: var(--ink);
+        color: var(--paper);
+        .nav-num { color: var(--paper); }
+      }
+
+      &.api-link {
+        color: var(--purple);
+        font-weight: bold;
+        &:hover {
+          background: var(--purple);
+          color: var(--paper);
+        }
+      }
+    }
+  }
+}
+
+.content-area {
+  flex: 1;
+  padding: 40px 64px 0 64px;
+  display: flex;
+  flex-direction: column;
+}
+
+.minimal-footer {
+  margin-top: auto;
+  padding: 32px 0;
+  border-top: 2px dashed var(--ink);
+  
+  p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    margin: 0;
+  }
+}
+
+.manpage {
+  width: 100%;
+  max-width: 800px;
+  background: var(--paper);
+  color: var(--ink);
+  margin-bottom: 64px;
+
+  &__header {
+    border-bottom: 4px solid var(--ink);
+    padding-bottom: 16px;
+    margin-bottom: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    h1 {
+      font-family: 'VT323', monospace;
+      font-size: 64px;
+      color: var(--ink);
+      line-height: 0.8;
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .manual-vol {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--ink);
+    }
+  }
+
+  h2 {
+    font-family: 'VT323', monospace;
+    font-size: 32px;
+    color: var(--ink);
+    margin: 48px 0 16px;
+    text-transform: uppercase;
+    
+    &::before {
+      content: '## ';
+      color: var(--accent);
+    }
+  }
+
+  h3 {
+    font-family: 'VT323', monospace;
+    font-size: 24px;
+    color: var(--ink);
+    margin: 32px 0 12px;
+    text-transform: uppercase;
+    
+    &::before {
+      content: '### ';
+      color: var(--purple);
+    }
+  }
+
+  p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 24px;
+    max-width: 80ch;
+  }
+
+  a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 4px;
+    font-weight: bold;
+
+    &:hover {
+      background: var(--accent);
+      color: var(--paper);
+    }
+  }
+
+  ul {
+    margin: 0 0 24px 0;
+    padding-left: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+
+    li {
+      margin-bottom: 8px;
+      color: var(--ink);
+      &::marker {
+        content: "- ";
+        color: var(--ink);
+      }
+    }
+  }
+
+  .expressive-code {
+    margin: 32px 0;
+    border: 2px solid var(--ink);
+  }
+
+  code:not(pre code) {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2px 6px;
+  }
+
+  .man-term-list {
+    margin-bottom: 32px;
+
+    .man-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 24px;
+
+      dt {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--ink);
+        margin-bottom: 8px;
+        
+        &::before {
+          content: '> ';
+          color: var(--accent);
+        }
+      }
+
+      dd {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        color: var(--ink);
+        line-height: 1.6;
+        padding-left: 16px;
+        border-left: 2px solid var(--ink-dim);
+      }
+    }
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

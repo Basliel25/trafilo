@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Trafilo - Reference Manual</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet"><script type="module">const e=localStorage.getItem("theme");e&&document.documentElement.setAttribute("data-theme",e);</script><link rel="stylesheet" href="/trafilo/_astro/architecture.CLhrKOyl.css"></head> <body> <div class="layout-wrapper"> <nav class="sidebar"> <div class="sidebar-header"> <div class="pixel-art-logo"> <svg width="48" height="48" viewBox="0 0 16 16" fill="var(--accent)" xmlns="http://www.w3.org/2000/svg"> <path d="M4 2v2H2v8h2v2h8v-2h2V4h-2V2H4zm8 10h-2v2H6v-2H4V4h2V2h4v2h2v8z"></path> <path d="M6 6h4v4H6V6z" fill="var(--purple)"></path> </svg> </div> <h2>TRAFILO</h2> <span class="version">v0.1.0</span> <div class="status-indicator"> <span class="blinker"></span>
+STATUS: RUNNING
+</div> <button onclick="toggleTheme()" class="theme-toggle">TOGGLE THEME</button> </div> <ul class="nav-links"> <li> <a href="/" class> <span class="nav-num">01.</span> INTRO
+</a> </li> <li> <a href="/installation" class> <span class="nav-num">02.</span> INSTALL
+</a> </li> <li> <a href="/usage" class> <span class="nav-num">03.</span> USAGE
+</a> </li> <li> <a href="/architecture" class> <span class="nav-num">04.</span> INTERNALS
+</a> </li> <li class="separator"><span>EXTERNAL</span></li> <li> <a href="/api/index.html" target="_blank" class="api-link">
+API REF ↗
+</a> </li> <li> <a href="https://github.com/Basliel25/trafilo" target="_blank" class="api-link">
+GITHUB ↗
+</a> </li> </ul> </nav> <main class="content-area">  <main class="manpage"> <header class="manpage__header"> <h1>INSTALLATION</h1> <span class="manual-vol">2</span> </header> <h2>PREREQUISITES</h2> <p>
+The build system expects a standard C environment. Ensure the following tools are present:
+</p> <ul> <li><code>gcc</code> (or a compatible C compiler)</li> <li><code>pthreads</code> (POSIX threads)</li> <li><code>make</code></li> <li><code>ncurses</code> (required to build the <code>hiveparser</code> example)</li> </ul> <h2>BUILD INSTRUCTIONS</h2> <p>
+Clone the repository and compile the framework. The default make target produces the static library, the shared library, and the <code>pkg-config</code> definition file.
+</p> <pre><code class="language-bash">git clone https://github.com/Basliel25/trafilo
+cd trafilo
+make</code></pre> <h2>INSTALLATION</h2> <p>
+Install the library system-wide. The default installation path is <code>/usr/local</code>. The build system honors the <code>DESTDIR</code> and <code>PREFIX</code> variables.
+</p> <pre><code class="language-bash">sudo make install</code></pre> <h2>EXAMPLES</h2> <p>
+Build the examples to verify the installation. The <code>hiveparser.c</code> example produces an <code>ncurses</code> dashboard that tracks per-service event rates.
+</p> <pre><code class="language-bash">make examples
+./build/examples/hiveparser &
+cd dummyDameon && docker compose up</code></pre> <p>
+The <code>docker compose</code> command starts a dummy daemon that transmits UDP logs. Trafilo parses, aggregates, and renders the data. Send a <code>q</code> character to terminate the process cleanly.
+</p> <div class="footer-sig">
+EOF
+</div> </main>  </main> </div>
+"content-area">
+ <main class="manpage"> <header class="manpage__header"> <h1>INSTALLATION</h1> <span class="manual-vol">2</span> </header> <h2>PREREQUISITES</h2> <p>
+The build system expects a standard C environment. Ensure the following tools are present:
+</p> <ul> <li><code>gcc</code> (or a compatible C compiler)</li> <li><code>pthreads</code> (POSIX threads)</li> <li><code>make</code></li> <li><code>ncurses</code> (required to build the <code>hiveparser</code> example)</li> </ul> <h2>BUILD INSTRUCTIONS</h2> <p>
+Clone the repository and compile the framework. The default make target produces the static library, the shared library, and the <code>pkg-config</code> definition file.
+</p> <pre><code class="language-bash">git clone https://github.com/Basliel25/trafilo
+cd trafilo
+make</code></pre> <h2>INSTALLATION</h2> <p>
+Install the library system-wide. The default installation path is <code>/usr/local</code>. The build system honors the <code>DESTDIR</code> and <code>PREFIX</code> variables.
+</p> <pre><code class="language-bash">sudo make install</code></pre> <h2>EXAMPLES</h2> <p>
+Build the examples to verify the installation. The <code>hiveparser.c</code> example produces an <code>ncurses</code> dashboard that tracks per-service event rates.
+</p> <pre><code class="language-bash">make examples
+./build/examples/hiveparser &
+cd dummyDameon && docker compose up</code></pre> <p>
+The <code>docker compose</code> command starts a dummy daemon that transmits UDP logs. Trafilo parses, aggregates, and renders the data. Send a <code>q</code> character to terminate the process cleanly.
+</p> <div class="footer-sig">
+EOF
+</div> </main>  </body></html>

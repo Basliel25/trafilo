@@ -1,0 +1,105 @@
+---
+import '../styles/global.scss';
+
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
+const pathname = Astro.url.pathname;
+const isHome = pathname === `${base}/` || pathname === `${base}/index.html`;
+const isInstall = pathname.startsWith(`${base}/installation`);
+const isUsage = pathname.startsWith(`${base}/usage`);
+const isArch = pathname.startsWith(`${base}/architecture`);
+const isExamples = pathname.startsWith(`${base}/examples`);
+---
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trafilo - Reference Manual</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        return 'dark';
+      })();
+      document.documentElement.setAttribute('data-theme', theme);
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+          const html = document.documentElement;
+          const current = html.getAttribute('data-theme');
+          const next = current === 'dark' ? 'light' : 'dark';
+          html.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="layout-wrapper">
+      <nav class="sidebar">
+        <div class="sidebar-header">
+          <div class="pixel-art-logo">
+            <svg width="48" height="48" viewBox="0 0 16 16" fill="var(--accent)" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 2v2H2v8h2v2h8v-2h2V4h-2V2H4zm8 10h-2v2H6v-2H4V4h2V2h4v2h2v8z"/>
+              <path d="M6 6h4v4H6V6z" fill="var(--purple)"/>
+            </svg>
+          </div>
+          <h2>TRAFILO</h2>
+          <span class="version">v0.1.0</span>
+          <button id="theme-toggle" class="theme-toggle">INVOKE THEME</button>
+        </div>
+        <ul class="nav-links">
+          <li>
+            <a href={`${base}/`} class={isHome ? 'active' : ''}>
+              <span class="nav-num">01.</span> INTRO
+            </a>
+          </li>
+          <li>
+            <a href={`${base}/installation`} class={isInstall ? 'active' : ''}>
+              <span class="nav-num">02.</span> INSTALL
+            </a>
+          </li>
+          <li>
+            <a href={`${base}/usage`} class={isUsage ? 'active' : ''}>
+              <span class="nav-num">03.</span> USAGE
+            </a>
+          </li>
+          <li>
+            <a href={`${base}/architecture`} class={isArch ? 'active' : ''}>
+              <span class="nav-num">04.</span> INTERNALS
+            </a>
+          </li>
+          <li>
+            <a href={`${base}/examples`} class={isExamples ? 'active' : ''}>
+              <span class="nav-num">05.</span> EXAMPLES
+            </a>
+          </li>
+          
+          <li class="separator"><span>---</span></li>
+          
+          <li>
+            <a href={`${base}/api/index.html`} target="_blank" class="api-link">
+              API REF ↗
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/Basliel25/trafilo" target="_blank" class="api-link">
+              GITHUB ↗
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <main class="content-area">
+        <slot />
+        <footer class="minimal-footer">
+          <p>EOF // trafilo</p>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

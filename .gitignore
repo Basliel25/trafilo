@@ -1,6 +1,8 @@
-dummyDameon/test_dameon.sh
-tests/unity/
 *.o
-build
-main.c
-examples/
+*.lo
+
+dummyDameon/test_dameon.sh
+build/
+tests/unity/
+examples/wordcount.c
+docs/drafts

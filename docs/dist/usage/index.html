@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Trafilo - Reference Manual</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet"><script type="module">const e=localStorage.getItem("theme");e&&document.documentElement.setAttribute("data-theme",e);</script><link rel="stylesheet" href="/trafilo/_astro/architecture.CLhrKOyl.css"></head> <body> <div class="layout-wrapper"> <nav class="sidebar"> <div class="sidebar-header"> <div class="pixel-art-logo"> <svg width="48" height="48" viewBox="0 0 16 16" fill="var(--accent)" xmlns="http://www.w3.org/2000/svg"> <path d="M4 2v2H2v8h2v2h8v-2h2V4h-2V2H4zm8 10h-2v2H6v-2H4V4h2V2h4v2h2v8z"></path> <path d="M6 6h4v4H6V6z" fill="var(--purple)"></path> </svg> </div> <h2>TRAFILO</h2> <span class="version">v0.1.0</span> <div class="status-indicator"> <span class="blinker"></span>
+STATUS: RUNNING
+</div> <button onclick="toggleTheme()" class="theme-toggle">TOGGLE THEME</button> </div> <ul class="nav-links"> <li> <a href="/" class> <span class="nav-num">01.</span> INTRO
+</a> </li> <li> <a href="/installation" class> <span class="nav-num">02.</span> INSTALL
+</a> </li> <li> <a href="/usage" class> <span class="nav-num">03.</span> USAGE
+</a> </li> <li> <a href="/architecture" class> <span class="nav-num">04.</span> INTERNALS
+</a> </li> <li class="separator"><span>EXTERNAL</span></li> <li> <a href="/api/index.html" target="_blank" class="api-link">
+API REF ↗
+</a> </li> <li> <a href="https://github.com/Basliel25/trafilo" target="_blank" class="api-link">
+GITHUB ↗
+</a> </li> </ul> </nav> <main class="content-area">  <main class="manpage"> <header class="manpage__header"> <h1>USAGE</h1> <span class="manual-vol">3</span> </header> <h2>CONFIGURATION</h2> <p>
+The framework behavior is defined by the <code><a href="/trafiloapi/structtrafilo__config__t.html">trafilo_config_t</a></code> structure. The caller specifies network parameters, concurrency counts, window dimensions, and the lifecycle callbacks.
+</p> <pre><code class="language-c">trafilo_config_t cfg = &#123;
+    /* Network */
+    .port              = 9999,
+    .recv_timeout_ms   = 100,
+
+    /* Threading & Concurrency */
+    .num_workers       = 4,
+    .num_buckets       = 127,
+
+    /* Sliding Window */
+    .window_size_ms    = 5000,
+    .slide_interval_ms = 1000,
+
+    /* Callbacks */
+    .parse      = parse_fn,
+    .event_free = event_free_fn,
+    .handle     = handle_fn,
+    .sink       = sink_fn,
+    .state_init = state_init_fn,
+    .state_free = state_free_fn,
+&#125;;</code></pre> <h2>CALLBACK CONTRACTS</h2> <h3>Memory Ownership</h3> <p>
+The <code>parse_fn</code> receives a raw UDP buffer. It allocates an <code>event_t</code>, sets the <code>key</code> and <code>payload</code> fields, and returns 0. Trafilo takes ownership of the event. When the event expires from the sliding window, Trafilo invokes <code>event_free_fn</code>. The caller must release memory allocated for the key, payload, and the event pointer.
+</p> <h3>State Initialization</h3> <p>
+The framework invokes <code>state_init_fn(const char *key)</code> upon encountering a key for the first time. The caller allocates and returns the state structure. If <code>state_init_fn</code> is NULL, or returns NULL, the framework delegates state management to the caller.
+</p> <h3>Execution Guarantees</h3> <p>
+The framework invokes <code>handle_fn(const event_t *event, void *user_state)</code> while holding the bucket lock. Operations accessing <code>user_state</code> are thread-safe with respect to the associated key. The caller must not acquire internal mutexes within the state object unless sharing the structure outside the Trafilo context.
+</p> <h3>Sink Output</h3> <p>
+The framework invokes <code>sink_fn</code> when the <code>slide_interval_ms</code> period concludes. The function receives a <code>window_result_t</code> containing the current event count, timestamp boundaries, and the associated <code>user_state</code>.
+</p> <h2>MANUAL INJECTION</h2> <p>
+The caller can bypass the UDP socket and inject data directly into the working queue. This function returns 0 on success, and -1 if the queue is full or the framework is shutting down.
+</p> <pre><code class="language-c">trafilo_emit(t, "user_login 192.168.1.1", 23);</code></pre> <div class="footer-sig">
+EOF
+</div> </main>  </main> </div>
+"content-area">
+ <main class="manpage"> <header class="manpage__header"> <h1>USAGE</h1> <span class="manual-vol">3</span> </header> <h2>CONFIGURATION</h2> <p>
+The framework behavior is defined by the <code><a href="/trafiloapi/structtrafilo__config__t.html">trafilo_config_t</a></code> structure. The caller specifies network parameters, concurrency counts, window dimensions, and the lifecycle callbacks.
+</p> <pre><code class="language-c">trafilo_config_t cfg = &#123;
+    /* Network */
+    .port              = 9999,
+    .recv_timeout_ms   = 100,
+
+    /* Threading & Concurrency */
+    .num_workers       = 4,
+    .num_buckets       = 127,
+
+    /* Sliding Window */
+    .window_size_ms    = 5000,
+    .slide_interval_ms = 1000,
+
+    /* Callbacks */
+    .parse      = parse_fn,
+    .event_free = event_free_fn,
+    .handle     = handle_fn,
+    .sink       = sink_fn,
+    .state_init = state_init_fn,
+    .state_free = state_free_fn,
+&#125;;</code></pre> <h2>CALLBACK CONTRACTS</h2> <h3>Memory Ownership</h3> <p>
+The <code>parse_fn</code> receives a raw UDP buffer. It allocates an <code>event_t</code>, sets the <code>key</code> and <code>payload</code> fields, and returns 0. Trafilo takes ownership of the event. When the event expires from the sliding window, Trafilo invokes <code>event_free_fn</code>. The caller must release memory allocated for the key, payload, and the event pointer.
+</p> <h3>State Initialization</h3> <p>
+The framework invokes <code>state_init_fn(const char *key)</code> upon encountering a key for the first time. The caller allocates and returns the state structure. If <code>state_init_fn</code> is NULL, or returns NULL, the framework delegates state management to the caller.
+</p> <h3>Execution Guarantees</h3> <p>
+The framework invokes <code>handle_fn(const event_t *event, void *user_state)</code> while holding the bucket lock. Operations accessing <code>user_state</code> are thread-safe with respect to the associated key. The caller must not acquire internal mutexes within the state object unless sharing the structure outside the Trafilo context.
+</p> <h3>Sink Output</h3> <p>
+The framework invokes <code>sink_fn</code> when the <code>slide_interval_ms</code> period concludes. The function receives a <code>window_result_t</code> containing the current event count, timestamp boundaries, and the associated <code>user_state</code>.
+</p> <h2>MANUAL INJECTION</h2> <p>
+The caller can bypass the UDP socket and inject data directly into the working queue. This function returns 0 on success, and -1 if the queue is full or the framework is shutting down.
+</p> <pre><code class="language-c">trafilo_emit(t, "user_login 192.168.1.1", 23);</code></pre> <div class="footer-sig">
+EOF
+</div> </main>  </body></html>

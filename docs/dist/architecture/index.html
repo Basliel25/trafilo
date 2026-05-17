@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Trafilo - Reference Manual</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet"><script type="module">const e=localStorage.getItem("theme");e&&document.documentElement.setAttribute("data-theme",e);</script><link rel="stylesheet" href="/trafilo/_astro/architecture.CLhrKOyl.css"></head> <body> <div class="layout-wrapper"> <nav class="sidebar"> <div class="sidebar-header"> <div class="pixel-art-logo"> <svg width="48" height="48" viewBox="0 0 16 16" fill="var(--accent)" xmlns="http://www.w3.org/2000/svg"> <path d="M4 2v2H2v8h2v2h8v-2h2V4h-2V2H4zm8 10h-2v2H6v-2H4V4h2V2h4v2h2v8z"></path> <path d="M6 6h4v4H6V6z" fill="var(--purple)"></path> </svg> </div> <h2>TRAFILO</h2> <span class="version">v0.1.0</span> <div class="status-indicator"> <span class="blinker"></span>
+STATUS: RUNNING
+</div> <button onclick="toggleTheme()" class="theme-toggle">TOGGLE THEME</button> </div> <ul class="nav-links"> <li> <a href="/" class> <span class="nav-num">01.</span> INTRO
+</a> </li> <li> <a href="/installation" class> <span class="nav-num">02.</span> INSTALL
+</a> </li> <li> <a href="/usage" class> <span class="nav-num">03.</span> USAGE
+</a> </li> <li> <a href="/architecture" class> <span class="nav-num">04.</span> INTERNALS
+</a> </li> <li class="separator"><span>EXTERNAL</span></li> <li> <a href="/api/index.html" target="_blank" class="api-link">
+API REF ↗
+</a> </li> <li> <a href="https://github.com/Basliel25/trafilo" target="_blank" class="api-link">
+GITHUB ↗
+</a> </li> </ul> </nav> <main class="content-area">  <main class="manpage"> <header class="manpage__header"> <h1>INTERNALS</h1> <span class="manual-vol">4</span> </header> <h2>ARCHITECTURE</h2> <p>
+Trafilo decouples network ingestion from event execution. It separates state by key to eliminate global lock contention. The system operates through five internal components.
+</p> <h3>1. Ingestion</h3> <p>
+A dedicated listener thread binds to the UDP port. It receives datagrams and pushes raw buffers onto the <a href="/trafiloapi/structbounded__queue__t.html">Bounded Queue</a>. The queue provides backpressure between the network interface and the processing workers. If the worker pool saturates, the queue fills. The listener discards incoming packets until queue capacity returns.
+</p> <h3>2. Dispatch</h3> <p>
+A configurable pool of worker threads extract entries from the queue concurrently. The <a href="/trafiloapi/structdispatcher__t.html">Dispatcher</a> invokes the user-provided parser callback to transform the raw buffer into an <code><a href="/trafiloapi/structevent__t.html">event_t</a></code> struct. Parsing occurs concurrently across the thread pool.
+</p> <h3>3. Sharded State</h3> <p>
+The Dispatcher determines the bucket for the event key in the <a href="/trafiloapi/structhashmap__t.html">Hashmap</a>. The Hashmap implements per-bucket mutexes. A worker thread acquires the lock for the target bucket. Thread operations on independent keys execute in parallel. Operations on identical keys serialize.
+</p> <p>
+The framework acquires the bucket lock before invoking the user <code>handle_fn</code> and releases the lock after the function returns. The caller is guaranteed thread-safety for operations modifying the <code>user_state</code> associated with that key.
+</p> <h3>4. Temporal Aggregation</h3> <p>
+The bucket node stores a <a href="/trafiloapi/structsliding__window__t.html">Sliding Window</a>. The window is a linked list of event timestamps. The framework evicts timestamps older than the retention horizon while holding the bucket lock.
+</p> <h3>5. Sink Output</h3> <p>
+The framework evaluates the slide interval during the bucket update. If the interval has elapsed since the last emission, the worker invokes the user <code>sink_fn</code> with a snapshot of the window counts and the associated <code>user_state</code>.
+</p> <div class="footer-sig">
+EOF
+</div> </main>  </main> </div>
+"content-area">
+ <main class="manpage"> <header class="manpage__header"> <h1>INTERNALS</h1> <span class="manual-vol">4</span> </header> <h2>ARCHITECTURE</h2> <p>
+Trafilo decouples network ingestion from event execution. It separates state by key to eliminate global lock contention. The system operates through five internal components.
+</p> <h3>1. Ingestion</h3> <p>
+A dedicated listener thread binds to the UDP port. It receives datagrams and pushes raw buffers onto the <a href="/trafiloapi/structbounded__queue__t.html">Bounded Queue</a>. The queue provides backpressure between the network interface and the processing workers. If the worker pool saturates, the queue fills. The listener discards incoming packets until queue capacity returns.
+</p> <h3>2. Dispatch</h3> <p>
+A configurable pool of worker threads extract entries from the queue concurrently. The <a href="/trafiloapi/structdispatcher__t.html">Dispatcher</a> invokes the user-provided parser callback to transform the raw buffer into an <code><a href="/trafiloapi/structevent__t.html">event_t</a></code> struct. Parsing occurs concurrently across the thread pool.
+</p> <h3>3. Sharded State</h3> <p>
+The Dispatcher determines the bucket for the event key in the <a href="/trafiloapi/structhashmap__t.html">Hashmap</a>. The Hashmap implements per-bucket mutexes. A worker thread acquires the lock for the target bucket. Thread operations on independent keys execute in parallel. Operations on identical keys serialize.
+</p> <p>
+The framework acquires the bucket lock before invoking the user <code>handle_fn</code> and releases the lock after the function returns. The caller is guaranteed thread-safety for operations modifying the <code>user_state</code> associated with that key.
+</p> <h3>4. Temporal Aggregation</h3> <p>
+The bucket node stores a <a href="/trafiloapi/structsliding__window__t.html">Sliding Window</a>. The window is a linked list of event timestamps. The framework evicts timestamps older than the retention horizon while holding the bucket lock.
+</p> <h3>5. Sink Output</h3> <p>
+The framework evaluates the slide interval during the bucket update. If the interval has elapsed since the last emission, the worker invokes the user <code>sink_fn</code> with a snapshot of the window counts and the associated <code>user_state</code>.
+</p> <div class="footer-sig">
+EOF
+</div> </main>  </body></html>

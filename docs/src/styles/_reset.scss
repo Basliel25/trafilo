@@ -1,0 +1,34 @@
+@use 'tokens' as *;
+
+// ── Reset + base element styles ───────────────────────────────────────────
+
+* { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; }
+
+html { 
+  scroll-behavior: smooth; 
+  cursor: default; 
+  background-color: var(--paper);
+  background-image: 
+    var(--bg-pattern),
+    radial-gradient(ellipse 160% 120% at 50% 40%, transparent 55%, rgba(0,0,0,0.04) 100%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+body {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+  background: transparent;
+  color: var(--ink);
+  transition: color $t-slow;
+  min-height: 100vh;
+  cursor: default;
+}
+
+a      { color: inherit; text-decoration: none; cursor: pointer; }
+button { background: none; border: none; cursor: pointer; font-family: inherit; color: inherit; }

@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['t_5fsecs_0',['t_secs',['../structevent__t.html#ace9b5abbd4b0ba8ea72a20503eb6055e',1,'event_t']]],
+  ['tail_1',['tail',['../structbounded__queue__t.html#ab3cc37bdca3424cefab5d651b220beb2',1,'bounded_queue_t::tail'],['../structsliding__window__t.html#ad5d1bbd369b871174907b5b76974b62c',1,'sliding_window_t::tail']]],
+  ['test_2',['Build and test',['../index.html#autotoc_md17',1,'']]],
+  ['the_20socket_3',['Bypassing the socket',['../index.html#autotoc_md13',1,'']]],
+  ['thread_4',['thread',['../structlistener__t.html#a3e59d39f3c906c9a50292de3438ee522',1,'listener_t']]],
+  ['threads_5',['threads',['../structdispatcher__t.html#aee62c7446e26dd81ee30118a5cb395ce',1,'dispatcher_t']]],
+  ['timespec_5fdiff_5fms_6',['timespec_diff_ms',['../window_8c.html#af5fa53d6421126c64a4d9ec2d316b96f',1,'window.c']]],
+  ['trafilo_7',['trafilo',['../structtrafilo.html',1,'trafilo_t'],['../index.html',1,'trafilo']]],
+  ['trafilo_2ec_8',['trafilo.c',['../trafilo_8c.html',1,'']]],
+  ['trafilo_2eh_9',['trafilo.h',['../trafilo_8h.html',1,'']]],
+  ['trafilo_5fconfig_5ft_10',['trafilo_config_t',['../structtrafilo__config__t.html',1,'']]],
+  ['trafilo_5fcreate_11',['trafilo_create',['../trafilo_8h.html#ab1b419b34fb2e9d39ed505209fc2dc01',1,'trafilo_create(const trafilo_config_t *config):&#160;trafilo.c'],['../trafilo_8c.html#ab1b419b34fb2e9d39ed505209fc2dc01',1,'trafilo_create(const trafilo_config_t *config):&#160;trafilo.c']]],
+  ['trafilo_5fdestroy_12',['trafilo_destroy',['../trafilo_8h.html#a522b00272e2e5203f9c531e18e67bbb6',1,'trafilo_destroy(trafilo_t *t):&#160;trafilo.c'],['../trafilo_8c.html#ace834fe4f9b192b66b2bb0ffc5a633b0',1,'trafilo_destroy(trafilo_t *trafilo):&#160;trafilo.c']]],
+  ['trafilo_5femit_13',['trafilo_emit',['../trafilo_8h.html#a9c70f8f34d21a6799d12fca164432bf9',1,'trafilo_emit(trafilo_t *t, const char *raw, size_t len):&#160;trafilo.c'],['../trafilo_8c.html#a157b99d7a6ed68a733470f5585a02452',1,'trafilo_emit(trafilo_t *trafilo, const char *raw_line, size_t len):&#160;trafilo.c']]],
+  ['trafilo_5fevent_5ffree_5ffn_14',['trafilo_event_free_fn',['../trafilo_8h.html#ade8f35a7c194f0966f83d2e384873306',1,'trafilo.h']]],
+  ['trafilo_5fhandle_5ffn_15',['trafilo_handle_fn',['../trafilo_8h.html#a73a7ac7859bf6b0ca61a58587ddd605d',1,'trafilo.h']]],
+  ['trafilo_5fparse_5ffn_16',['trafilo_parse_fn',['../trafilo_8h.html#aef2be58323f486861b8d2411eda88f0f',1,'trafilo.h']]],
+  ['trafilo_5frun_17',['trafilo_run',['../trafilo_8h.html#a51ab011a5630bef9d3959f5e6498e82a',1,'trafilo_run(trafilo_t *trafilo):&#160;trafilo.c'],['../trafilo_8c.html#a51ab011a5630bef9d3959f5e6498e82a',1,'trafilo_run(trafilo_t *trafilo):&#160;trafilo.c']]],
+  ['trafilo_5fshutdown_18',['trafilo_shutdown',['../trafilo_8h.html#a67aca04abd43ad7595ed4136007a4be3',1,'trafilo_shutdown(trafilo_t *trafilo):&#160;trafilo.c'],['../trafilo_8c.html#a67aca04abd43ad7595ed4136007a4be3',1,'trafilo_shutdown(trafilo_t *trafilo):&#160;trafilo.c']]],
+  ['trafilo_5fsink_5ffn_19',['trafilo_sink_fn',['../trafilo_8h.html#ac89c6cd61e7b220cae212518b8c612e0',1,'trafilo.h']]],
+  ['trafilo_5fstate_5ffree_5ffn_20',['trafilo_state_free_fn',['../trafilo_8h.html#ad43badef16bf2de33f85d249609dac43',1,'trafilo.h']]],
+  ['trafilo_5fstate_5finit_5ffn_21',['trafilo_state_init_fn',['../trafilo_8h.html#a3a03d75c4c443cee9f1aadfdd3d0ea70',1,'trafilo.h']]],
+  ['ts_22',['ts',['../structts__node__t.html#a5dce48727202c119ba29285f27879e55',1,'ts_node_t']]],
+  ['ts_5fnode_5ft_23',['ts_node_t',['../structts__node__t.html',1,'']]]
+];

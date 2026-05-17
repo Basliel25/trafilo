@@ -50,8 +50,8 @@ static uint64_t fnv1a(const char *key) {
 
 /**
  * @brief Bucket Indexing
- * @param hashmap_t pointer to the hashmap
- * @param const char key pointer to the event key
+ * @param m Pointer to the hashmap
+ * @param key Pointer to the event key
  */
 static size_t bucket_index(const hashmap_t *m, const char *key) {
     return fnv1a(key) % m->num_buckets;
@@ -154,4 +154,6 @@ void hashmap_for_each(hashmap_t *hashmap,
 void hashmap_unlock_bucket(hashmap_t *hashmap, const char *key) {
     size_t idx = bucket_index(hashmap, key);
     pthread_mutex_unlock(&hashmap->locks[idx]);
+}
+[idx]);
 }

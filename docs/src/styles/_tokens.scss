@@ -1,0 +1,28 @@
+// ── Design tokens ─────────────────────────────────────────────────────────
+
+// Layout
+$max-width: 1200px;
+$pad-x:     32px;
+$pad-x-sm:  24px;
+$break:     840px;
+
+// Palette — cooler terminal
+$paper:     #f0f2f0;   
+$ink:       #0d0f0d;   
+$ink-dim:   #4a4e4a;
+$ink-ghost: #b8bcb8;
+$border:    #d0d5d0;
+$accent:    #3fb950;   // solid terminal green
+$purple:    #8b5cf6;   // cyber purple
+
+// Typography
+$font-display: 'Syncopate', sans-serif;
+$font-heavy:   'Archivo', sans-serif;
+$font-serif:   'Special Elite', serif; 
+$font-accent:  'Special Elite', serif; 
+$font-mono:    'Space Mono', monospace;   
+
+// Motion
+$t-fast: .12s;
+$t-med:  .18s;
+$t-slow: .28s;

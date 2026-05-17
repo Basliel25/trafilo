@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
+---
+
+<Layout>
+  <main class="manpage">
+    <header class="manpage__header">
+      <h1>EXAMPLES</h1>
+      <span class="manual-vol">5</span>
+    </header>
+
+    <h2>HIVEPARSER</h2>
+    <p>
+      The <code>hiveparser.c</code> application demonstrates a live telemetry dashboard built on Trafilo. It binds to a UDP socket, parses incoming log structures, aggregates events per service, and renders a live UI via <code>ncurses</code>.
+    </p>
+
+    <p>
+      It uses the <code>dummyDameon</code> container to generate simulated traffic. Run the simulation to observe Trafilo aggregating multi-key state under load.
+    </p>
+
+    <div class="media-container" style="margin: 32px 0; border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--ink);">
+      <img src={`${base}/assets/hiveparser.gif`} alt="Hiveparser Demo" style="width: 100%; display: block;" />
+    </div>
+
+    <h3>Build and Execute</h3>
+    <p>
+      Compile the examples target. Launch the parser. Start the dummy daemon container to transmit UDP traffic.
+    </p>
+    <pre><code class="language-bash">make examples
+./build/examples/hiveparser &
+cd dummyDameon && docker compose up</code></pre>
+
+  </main>
+</Layout>

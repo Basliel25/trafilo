@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Trafilo - Reference Manual</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet"><script type="module">const e=localStorage.getItem("theme");e&&document.documentElement.setAttribute("data-theme",e);</script><link rel="stylesheet" href="/trafilo/_astro/architecture.CLhrKOyl.css"></head> <body> <div class="layout-wrapper"> <nav class="sidebar"> <div class="sidebar-header"> <div class="pixel-art-logo"> <svg width="48" height="48" viewBox="0 0 16 16" fill="var(--accent)" xmlns="http://www.w3.org/2000/svg"> <path d="M4 2v2H2v8h2v2h8v-2h2V4h-2V2H4zm8 10h-2v2H6v-2H4V4h2V2h4v2h2v8z"></path> <path d="M6 6h4v4H6V6z" fill="var(--purple)"></path> </svg> </div> <h2>TRAFILO</h2> <span class="version">v0.1.0</span> <div class="status-indicator"> <span class="blinker"></span>
+STATUS: RUNNING
+</div> <button onclick="toggleTheme()" class="theme-toggle">TOGGLE THEME</button> </div> <ul class="nav-links"> <li> <a href="/" class="active"> <span class="nav-num">01.</span> INTRO
+</a> </li> <li> <a href="/installation" class> <span class="nav-num">02.</span> INSTALL
+</a> </li> <li> <a href="/usage" class> <span class="nav-num">03.</span> USAGE
+</a> </li> <li> <a href="/architecture" class> <span class="nav-num">04.</span> INTERNALS
+</a> </li> <li class="separator"><span>EXTERNAL</span></li> <li> <a href="/api/index.html" target="_blank" class="api-link">
+API REF ↗
+</a> </li> <li> <a href="https://github.com/Basliel25/trafilo" target="_blank" class="api-link">
+GITHUB ↗
+</a> </li> </ul> </nav> <main class="content-area">  <main class="manpage"> <header class="manpage__header"> <h1>TRAFILO</h1> <span class="manual-vol">1</span> </header> <h2>NAME</h2> <dl class="man-term-list"> <div class="man-row"> <dt>trafilo</dt> <dd>A concurrent, stateful streaming event-handler framework written in C.</dd> </div> </dl> <h2>SYNOPSIS</h2> <pre><code class="language-c">#include &lt;trafilo.h&gt;
+
+trafilo_config_t cfg = &#123; ... &#125;;
+trafilo_t *t = trafilo_create(&cfg);
+trafilo_run(t);
+trafilo_shutdown(t);
+trafilo_destroy(t);</code></pre> <h2>DESCRIPTION</h2> <p>
+Welcome traveler. This is Trafilo.
+</p> <p>
+Trafilo runs continuously. It binds to a UDP socket, receives raw datagrams, and hands them to a concurrent worker pool. The framework orchestrates the ingestion, dispatches events by key across sharded buckets, maintains per-key state, accumulates events into sliding windows, and invokes a user-defined sink function when a window emits. Trafilo owns the threading and synchronization. The caller provides the domain logic.
+</p> <div class="footer-sig">
+EOF
+</div> </main>  </main> </div>
+"content-area">
+ <main class="manpage"> <header class="manpage__header"> <h1>TRAFILO</h1> <span class="manual-vol">1</span> </header> <h2>NAME</h2> <dl class="man-term-list"> <div class="man-row"> <dt>trafilo</dt> <dd>A concurrent, stateful streaming event-handler framework written in C.</dd> </div> </dl> <h2>SYNOPSIS</h2> <pre><code class="language-c">#include &lt;trafilo.h&gt;
+
+trafilo_config_t cfg = &#123; ... &#125;;
+trafilo_t *t = trafilo_create(&cfg);
+trafilo_run(t);
+trafilo_shutdown(t);
+trafilo_destroy(t);</code></pre> <h2>DESCRIPTION</h2> <p>
+Welcome traveler. This is Trafilo.
+</p> <p>
+Trafilo runs continuously. It binds to a UDP socket, receives raw datagrams, and hands them to a concurrent worker pool. The framework orchestrates the ingestion, dispatches events by key across sharded buckets, maintains per-key state, accumulates events into sliding windows, and invokes a user-defined sink function when a window emits. Trafilo owns the threading and synchronization. The caller provides the domain logic.
+</p> <div class="footer-sig">
+EOF
+</div> </main>  </body></html>

@@ -2,7 +2,7 @@
 
 /**
  * @brief Looping function for socket thread.
- * @param void *arg: The listener_t of the connection
+ * @param arg The listener_t of the connection
  */
 static void *listener_loop(void *arg) {
     listener_t *listener = (listener_t *) arg;

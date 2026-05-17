@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <main class="manpage">
+    <header class="manpage__header">
+      <h1>INSTALLATION</h1>
+      <span class="manual-vol">2</span>
+    </header>
+
+    <h2>PREREQUISITES</h2>
+    <p>
+      The build system expects a standard C environment. Ensure the following tools are present:
+    </p>
+    <ul>
+      <li><code>gcc</code> (or a compatible C compiler)</li>
+      <li><code>pthreads</code> (POSIX threads)</li>
+      <li><code>make</code></li>
+      <li><code>ncurses</code> (required to build the <code>hiveparser</code> example)</li>
+    </ul>
+
+    <h2>BUILD INSTRUCTIONS</h2>
+    <p>
+      Clone the repository and compile the framework. The default make target produces the static library, the shared library, and the <code>pkg-config</code> definition file.
+    </p>
+
+    <pre><code class="language-bash">git clone https://github.com/Basliel25/trafilo
+cd trafilo
+make</code></pre>
+
+    <h2>INSTALLATION</h2>
+    <p>
+      Install the library system-wide. The default installation path is <code>/usr/local</code>. The build system honors the <code>DESTDIR</code> and <code>PREFIX</code> variables.
+    </p>
+
+    <pre><code class="language-bash">sudo make install</code></pre>
+
+    <h2>EXAMPLES</h2>
+    <p>
+      Build the examples to verify the installation. The <code>hiveparser.c</code> example produces an <code>ncurses</code> dashboard that tracks per-service event rates.
+    </p>
+
+    <pre><code class="language-bash">make examples
+./build/examples/hiveparser &
+cd dummyDameon && docker compose up</code></pre>
+
+    <p>
+      The <code>docker compose</code> command starts a dummy daemon that transmits UDP logs. Trafilo parses, aggregates, and renders the data. Send a <code>q</code> character to terminate the process cleanly.
+    </p>
+  </main>
+</Layout>

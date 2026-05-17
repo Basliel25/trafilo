@@ -14,7 +14,7 @@
 #include "bounded_queue.h"
 
 /**
- * @brief  listener handle.
+ * @brief UDP listener handle.
  */
 typedef struct listener_t {
     int sockfd; /* UDP Port */
@@ -27,32 +27,30 @@ typedef struct listener_t {
 
 /**
  * @brief Allocate a listener bound to the given UDP port.
- * @param port      UDP port to bind on 
- * @param bounded_q         queue raw lines are pushed onto.
- *                  Listener does NOT take ownership — caller manages lifetime.
- * @return  listener handle on success, NULL on socket/bind/alloc failure.
+ * @param port UDP port to bind on.
+ * @param bounded_q Queue raw lines are pushed onto. Listener does NOT take ownership — caller manages lifetime.
+ * @param max_line The max buffer length per line.
+ * @return Listener handle on success, NULL on socket/bind/alloc failure.
  */
 listener_t *listener_create(int port, bounded_queue_t *bounded_q, size_t max_line);
 
 /**
- * @brief Spawn the receive thread. 
- * @param listener  listener to start
- * @return   0 on success, -1 if pthread_create failed, -2 already started
+ * @brief Spawn the receive thread.
+ * @param listener Listener to start.
+ * @return 0 on success, -1 if pthread_create failed, -2 already started.
  */
 int listener_start(listener_t *listener);
 
 /**
  * @brief Signal the receive thread to exit and join it.
- *        Does NOT shut down the queue — caller decides when to call
- *        bq_shutdown.
- *
- * @param listener  listener to stop
+ *        Does NOT shut down the queue — caller decides when to call bq_shutdown.
+ * @param listener Listener to stop.
  */
 void listener_stop(listener_t *listener);
 
 /**
  * @brief Free the listener and close its socket.
- * @param listener listener to destroy
+ * @param listener Listener to destroy.
  */
 void listener_destroy(listener_t *listener);
 #endif

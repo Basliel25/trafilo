@@ -28,7 +28,7 @@ struct trafilo {
 
 /**
  * @brief Validate the trafilo_config_t state
- * @param const trafilo_conifg_t
+ * @param config The configuration state
  * @return 0 on valid state, -1 on error
  */
 static int validate_config(const trafilo_config_t *config) {

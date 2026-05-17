@@ -6,17 +6,17 @@
 #include <time.h>
 
 /**
- * @brief: a struct to hold event data
+ * @brief A struct to hold event data.
  */
 typedef struct {
-    char *key; /* dispatch key (by dispatching service)*/
-    void *payload;/* binary safe content of event*/ 
-    size_t payload_len; /* binary safe content of event*/
+    char *key;              /* dispatch key (by dispatching service)*/
+    void *payload;          /* binary safe content of event*/ 
+    size_t payload_len;     /* binary safe content of event*/
     struct timespec t_secs; /* timestamp of event in nano second precision*/
 } event_t;
 
 /**
- * @brief: A result to be piped to sinking module when a window emits.
+ * @brief A result to be piped to sinking module when a window emits.
  */
 typedef struct {
     const char      *key;          /* bucket key */
@@ -31,57 +31,60 @@ typedef struct {
 */
 
 /**
- * @brief: function to parse and fillout **out with a fresh event_t
- * @param char *raw: raw log entry from stream
- * @param size_t len: length of the raw entry
- * @param event_t **out: new parsed entry along with event data
- * @return 0 on success, -1 to drop entry
+ * @brief Parse and fillout **out with a fresh event_t.
+ * @param raw Raw log entry from stream.
+ * @param len Length of the raw entry.
+ * @param out New parsed entry along with event data.
+ * @return 0 on success, -1 to drop entry.
  */
 typedef int (*trafilo_parse_fn)(const char *raw, size_t len, event_t **out);
 
 /**
- * @brief: Free a user allocated event from memory
- * @param event_t *event: Event to be freed.
+ * @brief Free a user allocated event from memory.
+ * @param event Event to be freed.
  */
 typedef void (*trafilo_event_free_fn)(event_t *event);
 
-
 /**
- * @brief: Handling callback function provided by user
- * @param event_t *event: Event to be handled.
- * @param void *user_state: Bucket's state pointer.
+ * @brief Handling callback function provided by user.
+ * @param event Event to be handled.
+ * @param user_state Bucket's state pointer.
  */
 typedef void (*trafilo_handle_fn)(const event_t *event, void *user_state);
 
 /**
- * @brief: Sink window 
- * @param char *key: Bucket identifier (service identifier).
- * @param void *user_state: Bucket's state pointer.
+ * @brief Sink window callback.
+ * @param key Bucket identifier (service identifier).
+ * @param result Window result snapshot.
+ * @param user_state Bucket's state pointer.
  */
 typedef void (*trafilo_sink_fn)(const char *key,
                                 const window_result_t *result,
                                 void *user_state);
 
 /**
- * @brief: Initalize the state of a bucket, called the first time a key is seen 
- * @param char *key: Bucket specific key.
- * @param void *user_state: Bucket's state pointer.
+ * @brief Initialize the state of a bucket, called the first time a key is seen.
+ * @param key Bucket specific key.
+ * @return Pointer to initialized state.
  */
 typedef void *(*trafilo_state_init_fn)(const char *key);
 
 /**
- * @brief: Free the user defined state, when a bucket is evicted. 
- * @param void *user_state: State to be freed.
+ * @brief Free the user defined state, when a bucket is evicted.
+ * @param user_state State to be freed.
  */
 typedef void (*trafilo_state_free_fn)(void *user_state);
 
+/**
+ * @brief Configuration struct for Trafilo framework.
+ */
 typedef struct {
     /* Network */
     const char *bind_addr;              /* Stream output address*/
     uint16_t    port;                   /* UDP port to bind to */
     int         recv_timeout_ms;        /* SO_RCVTIMEO; 0 = block forever*/
 
-    /* Threading and Concurency*/
+    /* Threading and Concurrency*/
     size_t num_workers;                 /* worker thread count */
     size_t num_buckets;                 /* hashmap size, prime number*/
 
@@ -100,7 +103,6 @@ typedef struct {
     trafilo_state_free_fn  state_free;
 } trafilo_config_t;
 
-
 /****************
  * API Lifecycle
  ****************
@@ -110,28 +112,35 @@ typedef struct trafilo trafilo_t;
 
 /**
  * @brief Create a framework instance.
- * @return new trafilo_t* on success, NULL on invalid config or alloc failure.
+ * @param config Pointer to the configuration struct.
+ * @return New trafilo_t* on success, NULL on invalid config or alloc failure.
  */
 trafilo_t *trafilo_create(const trafilo_config_t *config);
 
 /**
  * @brief Run the framework. Blocks until trafilo_shutdown() is called.
- * @return 0 on clean shutdown, non-zero on error
+ * @param trafilo The framework instance.
+ * @return 0 on clean shutdown, non-zero on error.
  */
 int trafilo_run(trafilo_t *trafilo);
 
 /**
  * @brief Signal the framework to shut down.
+ * @param trafilo The framework instance.
  */
 void trafilo_shutdown(trafilo_t *trafilo);
 
 /**
- * @brief Free all resources. 
+ * @brief Free all resources.
+ * @param t The framework instance.
  */
 void trafilo_destroy(trafilo_t *t);
 
 /**
  * @brief Push a raw line into the framework's queue, bypassing the socket.
+ * @param t The framework instance.
+ * @param raw Raw line data.
+ * @param len Length of the raw line.
  * @return 0 on success, -1 if queue full or framework shutting down.
  */
 int trafilo_emit(trafilo_t *t, const char *raw, size_t len);

@@ -1,0 +1,68 @@
+---
+import Layout from '../layouts/Layout.astro';
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
+---
+
+<Layout>
+  <main class="manpage">
+    <header class="manpage__header">
+      <h1>INTERNALS</h1>
+      <span class="manual-vol">4</span>
+    </header>
+
+    <h2>ARCHITECTURE</h2>
+    <p>
+      Trafilo decouples network ingestion from event execution. It separates state by key to eliminate global lock contention. The system operates through five internal components.
+    </p>
+
+    <h3>1. Ingestion</h3>
+    <p>
+      A dedicated listener thread binds to the UDP port. It receives datagrams and pushes raw buffers onto the <code><a href={`${base}/api/structbounded__queue__t.html`}>bounded_queue_t</a></code>. The queue provides backpressure between the network interface and the processing workers. If the worker pool saturates, the queue fills. The listener discards incoming packets until queue capacity returns.
+    </p>
+
+    <h3>2. Dispatch</h3>
+    <p>
+      A configurable pool of worker threads extract entries from the queue concurrently. The <code><a href={`${base}/api/structdispatcher__t.html`}>dispatcher_t</a></code> invokes the user-provided parser callback to transform the raw buffer into an <code><a href={`${base}/api/structevent__t.html`}>event_t</a></code> struct. Parsing occurs concurrently across the thread pool.
+    </p>
+
+    <pre><code class="language-c">void *worker_loop(void *arg) &#123;
+    dispatcher_t *d = arg;
+    while (!d->done) &#123;
+        char *raw = bq_pop(d->bounded_q);
+        if (!raw) continue;
+
+        event_t *ev;
+        if (d->config->parse(raw, strlen(raw), &ev) == 0) &#123;
+            process_event(d, ev);
+        &#125;
+        free(raw);
+    &#125;
+    return NULL;
+&#125;</code></pre>
+
+    <h3>3. Sharded State</h3>
+    <p>
+      The Dispatcher determines the bucket for the event key in the <code><a href={`${base}/api/structhashmap__t.html`}>hashmap_t</a></code>. The Hashmap implements per-bucket mutexes. A worker thread acquires the lock for the target bucket. Thread operations on independent keys execute in parallel. Operations on identical keys serialize. 
+    </p>
+    <p>
+      The framework acquires the bucket lock before invoking the user <code>handle_fn</code> and releases the lock after the function returns. The caller is guaranteed thread-safety for operations modifying the <code>user_state</code> associated with that key.
+    </p>
+
+    <pre><code class="language-c">bucket_node *b = hashmap_find_or_create(d->hash_m, ev->key);
+/* b->lock is now held by this thread */
+
+d->config->handle(ev, b->state);
+
+hashmap_unlock_bucket(d->hash_m, ev->key);</code></pre>
+
+    <h3>4. Temporal Aggregation</h3>
+    <p>
+      The bucket node stores a <code><a href={`${base}/api/structsliding__window__t.html`}>sliding_window_t</a></code>. The window is a linked list of event timestamps. The framework evicts timestamps older than the retention horizon while holding the bucket lock. This mechanism avoids secondary eviction threads.
+    </p>
+
+    <h3>5. Sink Output</h3>
+    <p>
+      The framework evaluates the slide interval during the bucket update. If the interval elapsed since the last emission, the worker invokes the user <code>sink_fn</code> with a snapshot of the window counts and the associated <code>user_state</code>.
+    </p>
+  </main>
+</Layout>

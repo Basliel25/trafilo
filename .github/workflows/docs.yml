@@ -29,10 +29,10 @@ jobs:
         run: cd docs && npm run build
 
       - name: copy doxygen into astro dist
-        run: cp -r docs/api dist/api
+        run: cp -r docs/api docs/dist/api
 
       - name: deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: dist
+          publish_dir: docs/dist
