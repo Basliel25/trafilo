@@ -137,7 +137,7 @@ trafilo_destroy(t);
 trafilo_emit(t, raw, len);  /* push a raw line directly into the queue */
 ```
 
-> Full API reference: (in construction)
+> Full API reference: [Doxy API Reference](https://basliel25.github.io/trafilo/api/index.html)
 
 ---
 
