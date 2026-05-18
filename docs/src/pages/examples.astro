@@ -12,16 +12,70 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
 
     <h2>HIVEPARSER</h2>
     <p>
-      The <code>hiveparser.c</code> application implements a live telemetry dashboard using Trafilo. It binds a UDP socket, parses incoming structural logs, aggregates events per service, and renders a live user interface via <code>ncurses</code>.
-    </p>
-
-    <p>
-      The repository includes a <code>dummyDameon</code> container to generate simulated UDP traffic. Execute the simulation to observe Trafilo aggregating multi-key state under load.
+      The <code>hiveparser.c</code> application demonstrates a live telemetry dashboard built on Trafilo. It binds to a UDP socket, parses incoming structural logs, aggregates events per service, and renders a live terminal user interface via <code>ncurses</code>.
     </p>
 
     <div class="media-container" style="margin: 40px 0; border: 2px solid var(--ink); padding: 8px; background: var(--ink-ghost);">
       <img src={`${base}/assets/hiveparser.gif`} alt="Hiveparser Demo Execution" style="width: 100%; display: block; border: 2px solid var(--ink);" />
     </div>
+
+    <h3>Application Architecture</h3>
+    <p>
+      The application separates data ingestion from visualization. Trafilo manages the high-throughput UDP stream and per-key temporal aggregation across multiple worker threads. A distinct background thread executes the <code>ncurses</code> render loop. A shared global structure, protected by a mutex, bridges the framework and the user interface.
+    </p>
+
+    <pre><code class="language-c">/* Shared TUI State */
+typedef struct &#123;
+    char            key[HP_KEY_MAX + 1];
+    size_t          total_count;
+    size_t          error_count;
+    size_t          window_count;
+    struct timespec last_seen;
+    int             in_use;
+&#125; tui_row_t;
+
+typedef struct &#123;
+    pthread_mutex_t lock;
+    tui_row_t       rows[MAX_SERVICES];
+    volatile int    shutdown;
+&#125; tui_state_t;
+
+static tui_state_t g_tui;</code></pre>
+
+    <h3>Event Processing and State Isolation</h3>
+    <p>
+      The framework executes the <code>parse_fn</code> concurrently across the worker pool. The parser extracts the routing key from the raw buffer and allocates the <code>event_t</code> structure. 
+    </p>
+    <p>
+      Trafilo acquires a bucket-specific lock before invoking <code>handle_fn</code>. The callback increments the event counter and executes a substring search across the payload to detect error signatures. The function executes without global locks.
+    </p>
+
+    <pre><code class="language-c">static void handle_fn(const event_t *e, void *user_state) &#123;
+    service_state_t *s = (service_state_t *)user_state;
+    s->total++;
+    if (looks_like_error((const char *)e->payload, e->payload_len)) &#123;
+        s->errors++;
+    &#125;
+&#125;</code></pre>
+
+    <h3>State Synchronization</h3>
+    <p>
+      The framework invokes the <code>sink_fn</code> callback upon sliding window expiration. The worker thread acquires the global <code>g_tui.lock</code>, transfers the aggregated bucket state into the shared rendering structure, and releases the lock. This minimizes lock contention; workers synchronize globally only during the periodic emission phase, not during per-event ingestion.
+    </p>
+
+    <pre><code class="language-c">static void sink_fn(const char *key, const window_result_t *result, void *user_state) &#123;
+    service_state_t *s = (service_state_t *)user_state;
+
+    pthread_mutex_lock(&g_tui.lock);
+    tui_row_t *row = tui_row_get(key);
+    if (row) &#123;
+        row->total_count  = s->total;
+        row->error_count  = s->errors;
+        row->window_count = result->event_count;
+        clock_gettime(CLOCK_MONOTONIC, &row->last_seen);
+    &#125;
+    pthread_mutex_unlock(&g_tui.lock);
+&#125;</code></pre>
 
     <h3>Build and Execute</h3>
     <p>
