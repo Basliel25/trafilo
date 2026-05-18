@@ -11,7 +11,8 @@
 ---
 
 > READ THE [DOCS](https://basliel25.github.io/trafilo/)
-> READ [HOW I MADE IT - blog in the work)
+
+###### READ [HOW and WHY I made it.](https://basz-website.basgug25.workers.dev/projects/trafilo/)
 
 ## Synopsis
 
